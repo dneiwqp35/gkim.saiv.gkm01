@@ -62,6 +62,12 @@
             border-color: #1890ff;
         }
 
+        .action-btn.liked {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+
         .publish-form {
             margin-bottom: 30px;
             display: none;
@@ -151,6 +157,7 @@
             <div class="filter-buttons">
                 <button class="filter-btn active" data-sort="time">最新发布</button>
                 <button class="filter-btn" data-sort="hot">最多阅读</button>
+                <button class="filter-btn" data-sort="likes">最多点赞</button>
             </div>
 
             <table class="article-table">
@@ -160,6 +167,7 @@
                         <th>平台</th>
                         <th>发布时间</th>
                         <th>阅读量</th>
+                        <th>点赞数</th>
                         <th>操作</th>
                     </tr>
                 </thead>
@@ -169,78 +177,77 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        // 文章数据库管理对象
+        const ArticleDB = {
+            KEY: 'articles_db',
+            
+            init() {
+                if (!localStorage.getItem(this.KEY)) {
+                    localStorage.setItem(this.KEY, JSON.stringify([]));
+                }
+            },
+
+            getAllArticles() {
+                return JSON.parse(localStorage.getItem(this.KEY) || '[]');
+            },
+
+            addArticle(article) {
+                const articles = this.getAllArticles();
+                articles.push({
+                    ...article,
+                    id: Date.now(),
+                    readCount: 0,
+                    likes: [],
+                    publishTime: new Date().toISOString()
+                });
+                localStorage.setItem(this.KEY, JSON.stringify(articles));
+            },
+
+            updateArticle(id, updates) {
+                let articles = this.getAllArticles();
+                const index = articles.findIndex(a => a.id.toString() === id.toString());
+                if (index !== -1) {
+                    articles[index] = { ...articles[index], ...updates };
+                    localStorage.setItem(this.KEY, JSON.stringify(articles));
+                }
+            },
+
+            deleteArticle(id) {
+                let articles = this.getAllArticles();
+                articles = articles.filter(a => a.id.toString() !== id.toString());
+                localStorage.setItem(this.KEY, JSON.stringify(articles));
+            }
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            ArticleDB.init();
+            loadArticles();
+
             const currentUser = localStorage.getItem('currentUser');
             const publishSection = document.getElementById('publishSection');
-            const searchInput = document.getElementById('searchInput');
-            const filterButtons = document.querySelectorAll('.filter-btn');
             
-            // 如果用户已登录，显示发布表单
             if (currentUser) {
                 publishSection.style.display = 'block';
                 document.querySelector('.login-btn').textContent = currentUser;
             }
 
-            // 加载所有文章，不做用户过滤
-            function loadArticles(sortBy = 'time') {
-                const articles = JSON.parse(localStorage.getItem('articles') || '[]');
-                const searchTerm = searchInput.value.toLowerCase();
-                
-                // 根据搜索词过滤
-                let filteredArticles = articles.filter(article => 
-                    article.title.toLowerCase().includes(searchTerm)
-                );
+            // 绑定搜索事件
+            document.getElementById('searchInput').addEventListener('input', () => loadArticles());
 
-                // 排序
-                filteredArticles.sort((a, b) => {
-                    if (sortBy === 'hot') {
-                        return (b.readCount || 0) - (a.readCount || 0);
-                    }
-                    return new Date(b.publishTime) - new Date(a.publishTime);
-                });
-
-                renderArticles(filteredArticles);
-            }
-
-            // 渲染文章列表
-            function renderArticles(articles) {
-                const tbody = document.getElementById('articleList');
-                tbody.innerHTML = articles.map(article => `
-                    <tr>
-                        <td>${article.title}</td>
-                        <td>
-                            <span class="platform-tag ${article.platform}">
-                                ${article.platform === 'wechat' ? '公众号' : '头条'}
-                            </span>
-                        </td>
-                        <td>${new Date(article.publishTime).toLocaleDateString()}</td>
-                        <td>${article.readCount || 0}</td>
-                        <td>
-                            <button class="action-btn" onclick="readArticle('${article.url}')">阅读</button>
-                            <button class="action-btn" onclick="shareArticle('${article.url}')">分享</button>
-                            ${currentUser === article.author ? 
-                                `<button class="action-btn" onclick="deleteArticle('${article.id}')">删除</button>` 
-                                : ''}
-                        </td>
-                    </tr>
-                `).join('');
-            }
-
-            // 搜索功能
-            searchInput.addEventListener('input', () => loadArticles());
-
-            // 排序功能
-            filterButtons.forEach(btn => {
+            // 绑定排序按钮事件
+            document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    filterButtons.forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     loadArticles(this.dataset.sort);
                 });
             });
 
-            // 发布文章
-            document.getElementById('publishForm')?.addEventListener('submit', function(e) {
+            // 绑定发布表单提交事件
+            document.getElementById('publishForm').addEventListener('submit', function(e) {
                 e.preventDefault();
+                
                 if (!currentUser) {
                     alert('请先登录');
                     window.location.href = 'login.html';
@@ -248,51 +255,89 @@
                 }
 
                 const article = {
-                    id: Date.now(),
                     title: this.articleTitle.value,
                     url: this.articleUrl.value,
                     platform: this.platform.value,
-                    publishTime: new Date().toISOString(),
-                    readCount: 0,
                     author: currentUser
                 };
 
-                const articles = JSON.parse(localStorage.getItem('articles') || '[]');
-                articles.push(article);
-                localStorage.setItem('articles', JSON.stringify(articles));
-
+                ArticleDB.addArticle(article);
                 this.reset();
                 loadArticles();
                 alert('发布成功！');
             });
-
-            // 初始加载所有文章
-            loadArticles();
         });
 
-        // 阅读文章（无需登录）
-        function readArticle(url) {
-            window.open(url, '_blank');
-            updateReadCount(url);
+        function loadArticles(sortBy = 'time') {
+            const articles = ArticleDB.getAllArticles();
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filteredArticles = articles;
+            if (searchTerm) {
+                filteredArticles = articles.filter(article => 
+                    article.title.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // 排序
+            filteredArticles.sort((a, b) => {
+                switch(sortBy) {
+                    case 'hot':
+                        return (b.readCount || 0) - (a.readCount || 0);
+                    case 'likes':
+                        return (b.likes?.length || 0) - (a.likes?.length || 0);
+                    default:
+                        return new Date(b.publishTime) - new Date(a.publishTime);
+                }
+            });
+
+            renderArticles(filteredArticles);
         }
 
-        // 更新阅读量（无需登录）
-        function updateReadCount(url) {
-            const articles = JSON.parse(localStorage.getItem('articles') || '[]');
-            const article = articles.find(a => a.url === url);
+        function renderArticles(articles) {
+            const currentUser = localStorage.getItem('currentUser');
+            const tbody = document.getElementById('articleList');
+            
+            tbody.innerHTML = articles.map(article => `
+                <tr>
+                    <td>${article.title}</td>
+                    <td>
+                        <span class="platform-tag ${article.platform}">
+                            ${article.platform === 'wechat' ? '公众号' : '头条'}
+                        </span>
+                    </td>
+                    <td>${new Date(article.publishTime).toLocaleDateString()}</td>
+                    <td>${article.readCount || 0}</td>
+                    <td>${article.likes?.length || 0}</td>
+                    <td>
+                        <button class="action-btn" onclick="readArticle('${article.id}', '${article.url}')">阅读</button>
+                        <button class="action-btn" onclick="shareArticle('${article.url}')">分享</button>
+                        ${currentUser ? `
+                            <button class="action-btn ${article.likes?.includes(currentUser) ? 'liked' : ''}" 
+                                onclick="toggleLike('${article.id}')">
+                                ${article.likes?.includes(currentUser) ? '已点赞' : '点赞'}
+                            </button>
+                        ` : ''}
+                        ${currentUser === article.author ? 
+                            `<button class="action-btn" onclick="deleteArticle('${article.id}')">删除</button>` 
+                            : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function readArticle(id, url) {
+            window.open(url, '_blank');
+            const article = ArticleDB.getAllArticles().find(a => a.id.toString() === id);
             if (article) {
-                article.readCount = (article.readCount || 0) + 1;
-                localStorage.setItem('articles', JSON.stringify(articles));
+                ArticleDB.updateArticle(id, { readCount: (article.readCount || 0) + 1 });
                 loadArticles();
             }
         }
 
-        // 分享文章（无需登录）
         function shareArticle(url) {
             if (navigator.share) {
-                navigator.share({
-                    url: url
-                });
+                navigator.share({ url: url });
             } else {
                 navigator.clipboard.writeText(url)
                     .then(() => alert('链接已复制到剪贴板'))
@@ -300,7 +345,29 @@
             }
         }
 
-        // 删除文章（仅作者可删除）
+        function toggleLike(id) {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                alert('请先登录');
+                return;
+            }
+
+            const article = ArticleDB.getAllArticles().find(a => a.id.toString() === id);
+            if (article) {
+                const likes = article.likes || [];
+                const index = likes.indexOf(currentUser);
+                
+                if (index === -1) {
+                    likes.push(currentUser);
+                } else {
+                    likes.splice(index, 1);
+                }
+                
+                ArticleDB.updateArticle(id, { likes });
+                loadArticles();
+            }
+        }
+
         function deleteArticle(id) {
             const currentUser = localStorage.getItem('currentUser');
             if (!currentUser) {
@@ -309,11 +376,7 @@
             }
 
             if (confirm('确定要删除这篇文章吗？')) {
-                let articles = JSON.parse(localStorage.getItem('articles') || '[]');
-                articles = articles.filter(article => 
-                    !(article.id.toString() === id && article.author === currentUser)
-                );
-                localStorage.setItem('articles', JSON.stringify(articles));
+                ArticleDB.deleteArticle(id);
                 loadArticles();
             }
         }
