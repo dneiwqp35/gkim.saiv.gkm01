@@ -181,7 +181,7 @@
                 document.querySelector('.login-btn').textContent = currentUser;
             }
 
-            // 加载所有文章
+            // 加载所有文章，不做用户过滤
             function loadArticles(sortBy = 'time') {
                 const articles = JSON.parse(localStorage.getItem('articles') || '[]');
                 const searchTerm = searchInput.value.toLowerCase();
@@ -241,7 +241,11 @@
             // 发布文章
             document.getElementById('publishForm')?.addEventListener('submit', function(e) {
                 e.preventDefault();
-                if (!currentUser) return;
+                if (!currentUser) {
+                    alert('请先登录');
+                    window.location.href = 'login.html';
+                    return;
+                }
 
                 const article = {
                     id: Date.now(),
@@ -259,19 +263,20 @@
 
                 this.reset();
                 loadArticles();
+                alert('发布成功！');
             });
 
-            // 初始加载
+            // 初始加载所有文章
             loadArticles();
         });
 
-        // 阅读文章
+        // 阅读文章（无需登录）
         function readArticle(url) {
             window.open(url, '_blank');
             updateReadCount(url);
         }
 
-        // 更新阅读量
+        // 更新阅读量（无需登录）
         function updateReadCount(url) {
             const articles = JSON.parse(localStorage.getItem('articles') || '[]');
             const article = articles.find(a => a.url === url);
@@ -282,24 +287,26 @@
             }
         }
 
-        // 分享文章
+        // 分享文章（无需登录）
         function shareArticle(url) {
             if (navigator.share) {
                 navigator.share({
                     url: url
                 });
             } else {
-                // 复制链接到剪贴板
                 navigator.clipboard.writeText(url)
                     .then(() => alert('链接已复制到剪贴板'))
                     .catch(() => alert('复制失败，请手动复制'));
             }
         }
 
-        // 删除文章
+        // 删除文章（仅作者可删除）
         function deleteArticle(id) {
             const currentUser = localStorage.getItem('currentUser');
-            if (!currentUser) return;
+            if (!currentUser) {
+                alert('请先登录');
+                return;
+            }
 
             if (confirm('确定要删除这篇文章吗？')) {
                 let articles = JSON.parse(localStorage.getItem('articles') || '[]');
