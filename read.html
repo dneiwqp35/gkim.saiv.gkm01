@@ -429,10 +429,11 @@
                 publishTime: new Date().toISOString(),
                 readCount: 0,
                 likeCount: 0,
-                author: currentUser
+                author: currentUser,
+                category: document.getElementById('articleCategory')?.value || ''
             };
 
-            // 保存文章
+            // 获取现有文章并添加新文章
             let articles = JSON.parse(localStorage.getItem('articles') || '[]');
             articles.push(article);
             localStorage.setItem('articles', JSON.stringify(articles));
@@ -457,6 +458,8 @@
         function loadArticles(sortBy) {
             const articleTable = document.querySelector('.article-table tbody');
             const currentUser = localStorage.getItem('currentUser');
+            
+            // 获取所有文章，不再过滤作者
             let articles = JSON.parse(localStorage.getItem('articles') || '[]');
             
             // 排序
@@ -466,7 +469,7 @@
                 return valueB - valueA;
             });
 
-            // 渲染文章列表
+            // 渲染所有文章
             articleTable.innerHTML = articles.map(article => `
                 <tr>
                     <td>${article.title}</td>
@@ -474,10 +477,16 @@
                         <span class="platform-tag ${article.platform}">
                             ${article.platform === 'wechat' ? '公众号' : '头条'}
                         </span>
+                        ${article.category ? `<span class="category-tag">${article.category}</span>` : ''}
                     </td>
                     <td>${new Date(article.publishTime).toLocaleDateString()}</td>
                     <td>${article.readCount || 0}</td>
-                    <td>${article.likeCount || 0}</td>
+                    <td>
+                        <span class="like-count">${article.likeCount || 0}</span>
+                        <button class="like-btn" onclick="addLikeFunction('${article.id}')">
+                            👍
+                        </button>
+                    </td>
                     <td>
                         <div class="article-actions">
                             <button class="action-btn" onclick="showQRCode('${article.url}')">查看</button>
@@ -574,7 +583,7 @@
             const url = shareModal.dataset.articleUrl;
             
             navigator.clipboard.writeText(url).then(function() {
-                alert('���接已复制到剪贴板');
+                alert('接已复制到剪贴板');
                 closeShareModal();
             }).catch(function(err) {
                 console.error('无法复制链接: ', err);
