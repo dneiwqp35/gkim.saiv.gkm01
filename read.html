@@ -140,7 +140,7 @@
                         <input type="text" id="articleTitle" class="input-field" placeholder="文章标题" required>
                     </div>
                     <div class="form-group">
-                        <input type="url" id="articleUrl" class="input-field" placeholder="文章链接" required>
+                        <textarea id="articleContent" class="input-field" placeholder="文章内容" required></textarea>
                     </div>
                     <div class="form-group">
                         <select id="platform" class="input-field" required>
@@ -177,13 +177,37 @@
     </div>
 
     <script>
+        // 初始化示例文章数据
+        const sampleArticles = [
+            {
+                id: 1,
+                title: "人工智能发展趋势",
+                content: "人工智能正在快速发展，影响着各个领域...",
+                platform: "toutiao",
+                author: "admin",
+                readCount: 156,
+                likes: ["user1", "user2"],
+                publishTime: "2024-01-29T10:00:00Z"
+            },
+            {
+                id: 2, 
+                title: "5G技术应用前景",
+                content: "5G技术的广泛应用将带来巨大变革...",
+                platform: "wechat",
+                author: "admin",
+                readCount: 89,
+                likes: ["user1"],
+                publishTime: "2024-01-28T09:00:00Z"
+            }
+        ];
+
         // 文章数据库管理对象
         const ArticleDB = {
             KEY: 'articles_db',
             
             init() {
                 if (!localStorage.getItem(this.KEY)) {
-                    localStorage.setItem(this.KEY, JSON.stringify([]));
+                    localStorage.setItem(this.KEY, JSON.stringify(sampleArticles));
                 }
             },
 
@@ -256,7 +280,7 @@
 
                 const article = {
                     title: this.articleTitle.value,
-                    url: this.articleUrl.value,
+                    content: this.articleContent.value,
                     platform: this.platform.value,
                     author: currentUser
                 };
@@ -275,7 +299,8 @@
             let filteredArticles = articles;
             if (searchTerm) {
                 filteredArticles = articles.filter(article => 
-                    article.title.toLowerCase().includes(searchTerm)
+                    article.title.toLowerCase().includes(searchTerm) ||
+                    article.content.toLowerCase().includes(searchTerm)
                 );
             }
 
@@ -310,8 +335,8 @@
                     <td>${article.readCount || 0}</td>
                     <td>${article.likes?.length || 0}</td>
                     <td>
-                        <button class="action-btn" onclick="readArticle('${article.id}', '${article.url}')">阅读</button>
-                        <button class="action-btn" onclick="shareArticle('${article.url}')">分享</button>
+                        <button class="action-btn" onclick="viewArticle('${article.id}')">阅读</button>
+                        <button class="action-btn" onclick="shareArticle('${article.id}')">分享</button>
                         ${currentUser ? `
                             <button class="action-btn ${article.likes?.includes(currentUser) ? 'liked' : ''}" 
                                 onclick="toggleLike('${article.id}')">
@@ -326,22 +351,29 @@
             `).join('');
         }
 
-        function readArticle(id, url) {
-            window.open(url, '_blank');
+        function viewArticle(id) {
             const article = ArticleDB.getAllArticles().find(a => a.id.toString() === id);
             if (article) {
                 ArticleDB.updateArticle(id, { readCount: (article.readCount || 0) + 1 });
+                alert(`${article.title}\n\n${article.content}`);
                 loadArticles();
             }
         }
 
-        function shareArticle(url) {
-            if (navigator.share) {
-                navigator.share({ url: url });
-            } else {
-                navigator.clipboard.writeText(url)
-                    .then(() => alert('链接已复制到剪贴板'))
-                    .catch(() => alert('复制失败，请手动复制'));
+        function shareArticle(id) {
+            const article = ArticleDB.getAllArticles().find(a => a.id.toString() === id);
+            if (article) {
+                const shareText = `${article.title}\n${article.content}`;
+                if (navigator.share) {
+                    navigator.share({ 
+                        title: article.title,
+                        text: shareText
+                    });
+                } else {
+                    navigator.clipboard.writeText(shareText)
+                        .then(() => alert('文章内容已复制到剪贴板'))
+                        .catch(() => alert('复制失败，请手动复制'));
+                }
             }
         }
 
