@@ -1,0 +1,148 @@
+.notice-container {
+    max-width: 800px;
+    margin: 80px auto 40px;
+    padding: 0 20px;
+}
+
+.notice-title {
+    text-align: center;
+    font-size: 32px;
+    color: #333;
+    margin-bottom: 40px;
+}
+
+.notice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.notice-item {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.notice-item:hover {
+    transform: translateY(-2px);
+}
+
+.notice-header {
+    padding: 20px 24px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #eee;
+}
+
+.notice-header h2 {
+    color: #333;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.notice-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 14px;
+}
+
+.date {
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.time-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background: url('../images/time-icon.svg') no-repeat center;
+    background-size: contain;
+}
+
+.tag {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.tag.system {
+    background: #e6f4ff;
+    color: #1677ff;
+}
+
+.tag.feature {
+    background: #f6ffed;
+    color: #52c41a;
+}
+
+.tag.price {
+    background: #fff7e6;
+    color: #fa8c16;
+}
+
+.notice-content {
+    padding: 24px;
+    color: #666;
+    line-height: 1.6;
+}
+
+.notice-content p {
+    margin-bottom: 16px;
+}
+
+.notice-content p:last-child {
+    margin-bottom: 0;
+}
+
+.notice-content ul {
+    list-style: none;
+    padding-left: 20px;
+    margin: 16px 0;
+}
+
+.notice-content ul li {
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.notice-content ul li::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #1677ff;
+}
+
+/* 响应式调整 */
+@media (max-width: 640px) {
+    .notice-container {
+        margin-top: 60px;
+    }
+
+    .notice-title {
+        font-size: 24px;
+        margin-bottom: 30px;
+    }
+
+    .notice-header {
+        padding: 16px 20px;
+    }
+
+    .notice-content {
+        padding: 20px;
+    }
+
+    .notice-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+} 

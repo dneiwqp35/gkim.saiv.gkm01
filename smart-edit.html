@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能编辑 - 古韵江湖AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .main-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .tools-panel {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tool-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .tool-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tool-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .tool-btn.active {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+
+        .editor-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .editor-main {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .editor-sidebar {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .editor-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .editor-area {
+            width: 100%;
+            height: 500px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: none;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .editor-area:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.2);
+        }
+
+        .suggestions {
+            margin-top: 20px;
+        }
+
+        .suggestion-item {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover {
+            background: #f8f8f8;
+        }
+
+        .suggestion-type {
+            font-size: 12px;
+            color: #1890ff;
+            margin-bottom: 5px;
+        }
+
+        .suggestion-content {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .word-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .style-options {
+            margin-top: 20px;
+        }
+
+        .style-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .style-option label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .style-option select {
+            flex: 1;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 添加加载状态样式 */
+        .loading {
+            display: inline-block;
+            animation: loading 1s infinite;
+        }
+
+        @keyframes loading {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        /* 优化建议项样式 */
+        .suggestion-item {
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 工具按钮禁用状态 */
+        .tool-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* 添加消息提示框样式 */
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .message-box.error {
+            border-left: 4px solid #ff4d4f;
+        }
+
+        .message-box.success {
+            border-left: 4px solid #52c41a;
+        }
+
+        .message-box.info {
+            border-left: 4px solid #1890ff;
+        }
+
+        .message-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .message-content p {
+            margin: 0;
+            color: #333;
+        }
+
+        .confirm-btn {
+            padding: 6px 20px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .confirm-btn:hover {
+            background: #40a9ff;
+        }
+
+        /* 添加遮罩层 */
+        .message-box::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: -1;
+        }
+
+        .quota-display {
+            margin-left: auto;
+            padding: 8px 15px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <header>
+        <nav>
+            <div class="logo">
+                <span class="year-2">2</span><span class="year-0">0</span><span class="year-2-2">2</span><span class="year-4">4</span>
+                <span class="brand">古韵江湖</span><span class="ai">AI</span>
+            </div>
+            <ul>
+                <li><a href="read.html">阅读</a></li>
+                <li><a href="similarity.html">相似度对比</a></li>
+                <li><a href="index.html">AI内容检测</a></li>
+                <li><a href="thesis.html">论文AI检测</a></li>
+                <li><a href="reduce.html">降AI</a></li>
+                <li><a href="reduce2.html">降AI2.0</a></li>
+                <li><a href="smart-edit.html" class="active">智改</a></li>
+                <li><a href="pricing.html">价格</a></li>
+                <li><a href="notice.html">公告</a></li>
+                <li><a href="login.html" class="login-btn">登录</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="tools-panel">
+            <div class="tool-group">
+                <button class="tool-btn" data-action="format">格式化</button>
+                <button class="tool-btn" data-action="polish">润色</button>
+                <button class="tool-btn" data-action="expand">扩写</button>
+            </div>
+            <div class="tool-group">
+                <button class="tool-btn" data-action="academic">学术化</button>
+                <button class="tool-btn" data-action="simplify">简化</button>
+            </div>
+            <div class="tool-group">
+                <button class="tool-btn" data-action="translate">翻译</button>
+                <button class="tool-btn" data-action="check">检查</button>
+            </div>
+            <div class="quota-display" id="quotaDisplay">
+                剩余次数：--
+            </div>
+        </div>
+
+        <div class="editor-container">
+            <div class="editor-main">
+                <h2 class="editor-title">编辑区域</h2>
+                <textarea id="mainEditor" class="editor-area" placeholder="在此输入或粘贴需要编辑的内容..."></textarea>
+                <div class="word-stats">
+                    <span>字数：<span id="wordCount">0</span></span>
+                    <span>段落：<span id="paragraphCount">0</span></span>
+                </div>
+            </div>
+
+            <div class="editor-sidebar">
+                <h2 class="editor-title">智能建议</h2>
+                <div class="style-options">
+                    <div class="style-option">
+                        <label>文本风格</label>
+                        <select id="styleSelect">
+                            <option value="default">默认</option>
+                            <option value="academic">学术</option>
+                            <option value="business">商务</option>
+                            <option value="casual">日常</option>
+                        </select>
+                    </div>
+                    <div class="style-option">
+                        <label>语言程度</label>
+                        <select id="levelSelect">
+                            <option value="simple">简单</option>
+                            <option value="normal" selected>标准</option>
+                            <option value="professional">专业</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="suggestions" id="suggestionList">
+                    <!-- 建议列表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mainEditor = document.getElementById('mainEditor');
+            const toolButtons = document.querySelectorAll('.tool-btn');
+            
+            // 百度智能云配置
+            const baiduConfig = {
+                baseUrl: 'https://aip.baidubce.com/rpc/2.0/nlp/v1',
+                apiKey: 'ALTAK-HT2jqryHz0VxbiMRZRLju',
+                secretKey: 'c53ce69da9113cb24d198df883eaa6bf55c5890a',
+                
+                async getAccessToken() {
+                    const tokenUrl = `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${this.apiKey}&client_secret=${this.secretKey}`;
+                    try {
+                        const response = await fetch(tokenUrl, { method: 'POST' });
+                        const result = await response.json();
+                        if (result.access_token) {
+                            localStorage.setItem('baidu_token', result.access_token);
+                            localStorage.setItem('baidu_token_expire', Date.now() + (result.expires_in * 1000));
+                            return result.access_token;
+                        }
+                        throw new Error('获取访问令牌失败');
+                    } catch (error) {
+                        console.error('获取百度访问令牌失败:', error);
+                        throw error;
+                    }
+                },
+
+                async getValidToken() {
+                    const token = localStorage.getItem('baidu_token');
+                    const expireTime = localStorage.getItem('baidu_token_expire');
+                    
+                    if (!token || !expireTime || Date.now() > parseInt(expireTime)) {
+                        return await this.getAccessToken();
+                    }
+                    return token;
+                }
+            };
+
+            // 显示消息提示
+            function showMessage(message, type = 'error') {
+                const messageBox = document.createElement('div');
+                messageBox.className = `message-box ${type}`;
+                messageBox.innerHTML = `
+                    <div class="message-content">
+                        <p>${message}</p>
+                        <button class="confirm-btn">确定</button>
+                    </div>
+                `;
+                document.body.appendChild(messageBox);
+
+                const confirmBtn = messageBox.querySelector('.confirm-btn');
+                confirmBtn.onclick = () => messageBox.remove();
+
+                // 添加自动关闭
+                setTimeout(() => messageBox.remove(), 5000);
+            }
+
+            // 更新统计信息
+            function updateStats() {
+                const text = mainEditor.value;
+                const charCount = text.length;
+                const paragraphCount = text.split('\n\n').filter(p => p.trim()).length;
+                
+                document.getElementById('wordCount').textContent = charCount;
+                document.getElementById('paragraphCount').textContent = paragraphCount;
+            }
+
+            // 处理文本的函数
+            const API_URL = 'http://your-server.com/api/process';
+
+            async function processText(text, action) {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ text, action })
+                    });
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('处理失败:', error);
+                    showMessage('请求失败，请稍后重试');
+                }
+            }
+
+            // 为每个工具按钮添加点击事件
+            toolButtons.forEach(button => {
+                button.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    console.log('按钮被点击:', this.dataset.action); // 调试日志
+
+                    const action = this.dataset.action;
+                    const text = mainEditor.value.trim();
+                    
+                    if (!text) {
+                        showMessage('请输入要处理的文本', 'info');
+                        return;
+                    }
+                    
+                    // 显示加载状态
+                    this.disabled = true;
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '处理中...';
+                    
+                    try {
+                        const result = await processText(text, action);
+                        
+                        if (result.success) {
+                            if (action === 'check') {
+                                showMessage(result.message, 'info');
+                            } else {
+                                mainEditor.value = result.processedText;
+                                updateStats();
+                                showMessage('处理完成', 'success');
+                            }
+                        } else {
+                            throw new Error(result.message);
+                        }
+                    } catch (error) {
+                        console.error('处理失败:', error);
+                        showMessage(error.message || '处理文本时出现错误，请稍后重试', 'error');
+                    } finally {
+                        // 恢复按钮状态
+                        this.disabled = false;
+                        this.innerHTML = originalText;
+                    }
+                });
+            });
+
+            // 初始化
+            updateStats();
+            
+            // 监听输入事件
+            mainEditor.addEventListener('input', updateStats);
+
+            // 添加网络状态检查
+            window.addEventListener('online', function() {
+                showMessage('网络已连接', 'success');
+            });
+
+            window.addEventListener('offline', function() {
+                showMessage('网络连接已断开', 'error');
+            });
+        });
+    </script>
+</body>
+</html> 

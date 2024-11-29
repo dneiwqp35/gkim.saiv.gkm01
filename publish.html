@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布文章 - 古韵江湖AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- 引入 wangEditor -->
+    <script src="https://unpkg.com/@wangeditor/editor@latest/dist/index.js"></script>
+    <link href="https://unpkg.com/@wangeditor/editor@latest/dist/css/style.css" rel="stylesheet">
+    <style>
+        .publish-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .publish-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        .publish-btn {
+            padding: 12px 24px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .publish-btn:hover {
+            background: #40a9ff;
+        }
+
+        .category-tags {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .category-select {
+            flex: 1;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .tags-input {
+            flex: 2;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .editor-container {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .toolbar-container {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .editor-content {
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .preview-container {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fafafa;
+            display: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .preview-btn {
+            padding: 12px 24px;
+            background: #52c41a;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .draft-btn {
+            padding: 12px 24px;
+            background: #faad14;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <span class="year-2">2</span><span class="year-0">0</span><span class="year-2-2">2</span><span class="year-4">4</span>
+                <span class="brand">古韵江湖</span><span class="ai">AI</span>
+            </div>
+            <ul>
+                <li><a href="read.html">阅读</a></li>
+                <li><a href="publish.html">发布文章</a></li>
+                <li><a href="similarity.html">相似度对比</a></li>
+                <li><a href="index.html">AI内容检测</a></li>
+                <li><a href="thesis.html">论文AI检测</a></li>
+                <li><a href="reduce.html">降AI</a></li>
+                <li><a href="reduce2.html">降AI2.0</a></li>
+                <li><a href="smart-edit.html">智改</a></li>
+                <li><a href="pricing.html">价格</a></li>
+                <li><a href="notice.html">公告</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="publish-container">
+        <h2>发布文章</h2>
+        <form class="publish-form" id="publishForm">
+            <div class="form-group">
+                <label for="title">文章标题</label>
+                <input type="text" id="title" required>
+            </div>
+
+            <div class="category-tags">
+                <select class="category-select" id="category" required>
+                    <option value="">选择分类</option>
+                    <option value="technology">技术</option>
+                    <option value="life">生活</option>
+                    <option value="culture">文化</option>
+                    <option value="other">其他</option>
+                </select>
+                <input type="text" class="tags-input" id="tags" placeholder="输入标签，用逗号分隔">
+            </div>
+
+            <div class="editor-container">
+                <div class="toolbar-container" id="toolbar-container"></div>
+                <div class="editor-content" id="editor-container"></div>
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" class="preview-btn" id="previewBtn">预览</button>
+                <button type="button" class="draft-btn" id="draftBtn">保存草稿</button>
+                <button type="submit" class="publish-btn">发布文章</button>
+            </div>
+        </form>
+
+        <div class="preview-container" id="previewContainer">
+            <h3>预览</h3>
+            <div id="previewContent"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查用户权限
+            if (!localStorage.getItem('canPublish')) {
+                alert('您没有发布权限');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // 初始化编辑器
+            const { createEditor, createToolbar } = window.wangEditor;
+
+            const editorConfig = {
+                placeholder: '请输入文章内容...',
+                onChange(editor) {
+                    const html = editor.getHtml();
+                    console.log('content', html);
+                }
+            }
+
+            const editor = createEditor({
+                selector: '#editor-container',
+                html: '<p>请输入文章内容...</p>',
+                config: editorConfig,
+                mode: 'default'
+            });
+
+            const toolbarConfig = {};
+
+            const toolbar = createToolbar({
+                editor,
+                selector: '#toolbar-container',
+                config: toolbarConfig,
+                mode: 'default'
+            });
+
+            // 预览功能
+            const previewBtn = document.getElementById('previewBtn');
+            const previewContainer = document.getElementById('previewContainer');
+            const previewContent = document.getElementById('previewContent');
+
+            previewBtn.addEventListener('click', function() {
+                const title = document.getElementById('title').value;
+                const content = editor.getHtml();
+                const category = document.getElementById('category').value;
+                const tags = document.getElementById('tags').value;
+
+                previewContent.innerHTML = `
+                    <h2>${title}</h2>
+                    <p>分类：${category}</p>
+                    <p>标签：${tags}</p>
+                    <div class="content">${content}</div>
+                `;
+                previewContainer.style.display = 'block';
+            });
+
+            // 保存草稿
+            const draftBtn = document.getElementById('draftBtn');
+            draftBtn.addEventListener('click', function() {
+                const draft = {
+                    title: document.getElementById('title').value,
+                    content: editor.getHtml(),
+                    category: document.getElementById('category').value,
+                    tags: document.getElementById('tags').value,
+                    timestamp: new Date().toISOString()
+                };
+
+                let drafts = JSON.parse(localStorage.getItem('articleDrafts') || '[]');
+                drafts.push(draft);
+                localStorage.setItem('articleDrafts', JSON.stringify(drafts));
+                alert('草稿保存成功！');
+            });
+
+            // 发布文章
+            const publishForm = document.getElementById('publishForm');
+            publishForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const articleData = {
+                    title: document.getElementById('title').value,
+                    content: editor.getHtml(),
+                    category: document.getElementById('category').value,
+                    tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()),
+                    author: localStorage.getItem('currentUser'),
+                    publishTime: new Date().toISOString()
+                };
+
+                try {
+                    // 这里应该是您的后端API地址
+                    const response = await fetch('/api/articles', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(articleData)
+                    });
+
+                    if (response.ok) {
+                        alert('文章发布成功！');
+                        window.location.href = 'read.html';
+                    } else {
+                        throw new Error('发布失败');
+                    }
+                } catch (error) {
+                    // 如果API未准备好，暂时使用localStorage存储
+                    let articles = JSON.parse(localStorage.getItem('articles') || '[]');
+                    articles.push(articleData);
+                    localStorage.setItem('articles', JSON.stringify(articles));
+                    alert('文章发布成功！');
+                    window.location.href = 'read.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公告 - 古韵江湖AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .notice-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .notice-header {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .notice-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .notice-subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .notice-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .notice-item {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .notice-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .notice-item.important {
+            border-left: 4px solid #ff4d4f;
+        }
+
+        .notice-item.update {
+            border-left: 4px solid #1890ff;
+        }
+
+        .notice-item.maintenance {
+            border-left: 4px solid #faad14;
+        }
+
+        .notice-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .notice-item-title {
+            font-size: 18px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notice-tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: white;
+        }
+
+        .notice-tag.important {
+            background: #ff4d4f;
+        }
+
+        .notice-tag.update {
+            background: #1890ff;
+        }
+
+        .notice-tag.maintenance {
+            background: #faad14;
+        }
+
+        .notice-date {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .notice-content {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .notice-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .notice-expand {
+            color: #1890ff;
+            cursor: pointer;
+        }
+
+        .notice-expand:hover {
+            text-decoration: underline;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .page-btn:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        .page-btn.active {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <header>
+        <nav>
+            <div class="logo">
+                <span class="year-2">2</span><span class="year-0">0</span><span class="year-2-2">2</span><span class="year-4">4</span>
+                <span class="brand">古韵江湖</span><span class="ai">AI</span>
+            </div>
+            <ul>
+                <li><a href="read.html">阅读</a></li>
+                <li><a href="similarity.html">相似度对比</a></li>
+                <li><a href="index.html">AI内容检测</a></li>
+                <li><a href="thesis.html">论文AI检测</a></li>
+                <li><a href="reduce.html">降AI</a></li>
+                <li><a href="reduce2.html">降AI2.0</a></li>
+                <li><a href="smart-edit.html">智改</a></li>
+                <li><a href="pricing.html">价格</a></li>
+                <li><a href="notice.html" class="active">公告</a></li>
+                <li><a href="login.html" class="login-btn">登录</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="notice-container">
+        <div class="notice-header">
+            <h1 class="notice-title">系统公告</h1>
+            <p class="notice-subtitle">及时了解系统更新和维护信息</p>
+        </div>
+
+        <div class="notice-list" id="noticeList">
+            <!-- 公告列表将通过 JavaScript 动态生成 -->
+        </div>
+
+        <div class="pagination" id="pagination">
+            <!-- 分页按钮将通过 JavaScript 动态生成 -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 模拟公告数据
+            const notices = [
+                {
+                    id: 1,
+                    type: 'important',
+                    title: '系统重要更新通知',
+                    content: '为了提供更好的服务，系统将于2024年3月25日进行重要升级...',
+                    date: '2024-11-21',
+                    author: '系统管理员',
+                    views: 1234
+                },
+                {
+                    id: 2,
+                    type: 'update',
+                    title: '新功能上线公告',
+                    content: '我们很高兴地通知您，新的AI降重功能已经上线...',
+                    date: '2024-11-20',
+                    author: '产品团队',
+                    views: 856
+                },
+                {
+                    id: 3,
+                    type: 'maintenance',
+                    title: '系统维护通知',
+                    content: '系统将于本周日凌晨2点-4点进行例行维护...',
+                    date: '2024-11-19',
+                    author: '运维团队',
+                    views: 567
+                }
+            ];
+
+            // 渲染公告列表
+            function renderNotices(notices) {
+                const noticeList = document.getElementById('noticeList');
+                noticeList.innerHTML = notices.map(notice => `
+                    <div class="notice-item ${notice.type}" onclick="showNoticeDetail(${notice.id})">
+                        <div class="notice-item-header">
+                            <div class="notice-item-title">
+                                <span class="notice-tag ${notice.type}">
+                                    ${notice.type === 'important' ? '重要' : 
+                                      notice.type === 'update' ? '更新' : '维护'}
+                                </span>
+                                ${notice.title}
+                            </div>
+                            <span class="notice-date">${notice.date}</span>
+                        </div>
+                        <div class="notice-content">${notice.content}</div>
+                        <div class="notice-footer">
+                            <span>发布者：${notice.author}</span>
+                            <span>浏览：${notice.views}</span>
+                            <span class="notice-expand">查看详情 ></span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // 显示公告详情
+            window.showNoticeDetail = function(id) {
+                const notice = notices.find(n => n.id === id);
+                if (notice) {
+                    alert(`公告详情功能开发中...\n\n${notice.title}\n${notice.content}`);
+                }
+            };
+
+            // 初始化
+            renderNotices(notices);
+        });
+    </script>
+</body>
+</html> 

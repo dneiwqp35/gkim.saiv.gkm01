@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI内容检测 - 古韵江湖AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .main-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .detection-panel {
+            background: #fff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .panel-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .panel-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .panel-desc {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .fixed-editor {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .fixed-textarea {
+            width: 100%;
+            height: 300px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: none;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .fixed-textarea:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.2);
+        }
+
+        .word-count {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: #999;
+            font-size: 12px;
+            background: rgba(255,255,255,0.9);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .action-button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .detect-btn {
+            background: #1890ff;
+            color: white;
+        }
+
+        .detect-btn:hover {
+            background: #40a9ff;
+        }
+
+        .clear-btn {
+            background: #ff4d4f;
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background: #ff7875;
+        }
+
+        .result-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 8px solid #1890ff;
+        }
+
+        .score-value {
+            font-size: 40px;
+            font-weight: bold;
+            color: #1890ff;
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .result-details {
+            background: #f8f8f8;
+            border-radius: 4px;
+            padding: 20px;
+        }
+
+        .detail-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .detail-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-score {
+            color: #1890ff;
+            font-weight: 500;
+        }
+
+        .detail-content {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .highlight {
+            background: #fff1f0;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        .points-notice {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1890ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <header>
+        <nav>
+            <div class="logo">
+                <span class="year-2">2</span><span class="year-0">0</span><span class="year-2-2">2</span><span class="year-4">4</span>
+                <span class="brand">古韵江湖</span><span class="ai">AI</span>
+            </div>
+            <ul>
+                <li><a href="read.html">阅读</a></li>
+                <li><a href="similarity.html">相似度对比</a></li>
+                <li><a href="index.html" class="active">AI内容检测</a></li>
+                <li><a href="thesis.html">论文AI检测</a></li>
+                <li><a href="reduce.html">降AI</a></li>
+                <li><a href="reduce2.html">降AI2.0</a></li>
+                <li><a href="smart-edit.html">智改</a></li>
+                <li><a href="pricing.html">价格</a></li>
+                <li><a href="notice.html">公告</a></li>
+                <li><a href="login.html" class="login-btn">登录</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="detection-panel">
+            <div class="panel-header">
+                <h1 class="panel-title">AI内容检测</h1>
+                <p class="panel-desc">智能识别AI生成内容，提供详细分析报告</p>
+            </div>
+
+            <div class="input-section">
+                <div class="fixed-editor">
+                    <textarea 
+                        id="input-text" 
+                        class="fixed-textarea"
+                        placeholder="请输入需要检测的内容..." 
+                        maxlength="5000"
+                    ></textarea>
+                    <div class="word-count">
+                        <span id="current-count">0</span>/<span>5000</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="clear-btn" class="action-button clear-btn">清空重写</button>
+                    <button id="detect-btn" class="action-button detect-btn">开始检测</button>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>正在分析中，请稍候...</p>
+            </div>
+
+            <div class="result-section" id="result-section">
+                <div class="score-display">
+                    <div class="score-circle">
+                        <span class="score-value" id="ai-score">0%</span>
+                        <span class="score-label">AI检出率</span>
+                    </div>
+                </div>
+
+                <div class="result-details" id="result-details">
+                    <!-- 检测结果将通过JavaScript动态添加 -->
+                </div>
+            </div>
+
+            <div class="points-notice">
+                本次检测将消耗 10 积分
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputText = document.getElementById('input-text');
+            const currentCount = document.getElementById('current-count');
+            const clearBtn = document.getElementById('clear-btn');
+            const detectBtn = document.getElementById('detect-btn');
+            const resultSection = document.getElementById('result-section');
+            const aiScore = document.getElementById('ai-score');
+            const resultDetails = document.getElementById('result-details');
+            const loading = document.getElementById('loading');
+
+            // 字数统计
+            inputText.addEventListener('input', function() {
+                const count = this.value.length;
+                currentCount.textContent = count;
+            });
+
+            // 清空功能
+            clearBtn.addEventListener('click', function() {
+                inputText.value = '';
+                currentCount.textContent = '0';
+                resultSection.style.display = 'none';
+            });
+
+            // AI检测分析函数
+            async function analyzeText(text) {
+                // 模拟API调用延迟
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // 文本特征分析
+                const patterns = {
+                    repetitive: /\b(\w+)\s+\1\b/g,
+                    formal: /\b(therefore|consequently|furthermore|moreover)\b/gi,
+                    passive: /\b(is|are|was|were)\s+\w+ed\b/g,
+                    complex: /\b\w{12,}\b/g
+                };
+
+                const textLength = text.length;
+                const sentences = text.split(/[.!?]+/).length;
+                const avgSentenceLength = textLength / sentences;
+
+                // 计算各项指标
+                const repetitiveScore = (text.match(patterns.repetitive) || []).length;
+                const formalScore = (text.match(patterns.formal) || []).length;
+                const passiveScore = (text.match(patterns.passive) || []).length;
+                const complexScore = (text.match(patterns.complex) || []).length;
+
+                // 根据指标计算总分
+                const totalScore = Math.min(
+                    Math.round(
+                        (repetitiveScore * 10 + 
+                        formalScore * 15 + 
+                        passiveScore * 12 + 
+                        complexScore * 8 + 
+                        (avgSentenceLength > 20 ? 20 : 0)) / 5
+                    ), 
+                    100
+                );
+
+                return {
+                    score: totalScore,
+                    details: [
+                        {
+                            title: '语言特征分析',
+                            score: Math.round((repetitiveScore + formalScore) * 10),
+                            content: `检测到${repetitiveScore}处重复用语，${formalScore}处过于正式的表达。建议：适当增加口语化表达，减少重复用词。`
+                        },
+                        {
+                            title: '句式结构分析',
+                            score: Math.round(passiveScore * 12),
+                            content: `发现${passiveScore}处被动语态，平均句长${Math.round(avgSentenceLength)}字。建议：增加主动语态使用，控制句子长度。`
+                        },
+                        {
+                            title: '词汇多样性',
+                            score: Math.round(complexScore * 8),
+                            content: `检测到${complexScore}处复杂词汇。建议：适当使用更简单、常见的词汇表达。`
+                        },
+                        {
+                            title: '整体评估',
+                            score: totalScore,
+                            content: `文本的AI特征明显程度为${totalScore}%。${
+                                totalScore > 70 ? '建议大幅调整写作风格。' :
+                                totalScore > 40 ? '建议适当调整部分表达。' :
+                                '文本较为自然，可以适当保持。'
+                            }`
+                        }
+                    ]
+                };
+            }
+
+            // 检测功能
+            detectBtn.addEventListener('click', async function() {
+                const text = inputText.value.trim();
+                
+                if (!text) {
+                    alert('请输入需要检测的内容');
+                    return;
+                }
+
+                if (text.length < 50) {
+                    alert('文本内容太短，请至少输入50个字符');
+                    return;
+                }
+
+                // 检查用户登录状态
+                const currentUser = localStorage.getItem('currentUser');
+                if (!currentUser) {
+                    alert('请先登录');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // 检查用户积分
+                let userPoints = localStorage.getItem('userPoints');
+                if (userPoints !== 'unlimited' && parseInt(userPoints) < 10) {
+                    alert('积分不足，请充值');
+                    return;
+                }
+
+                try {
+                    // 显示加载动画
+                    loading.style.display = 'block';
+                    resultSection.style.display = 'none';
+                    detectBtn.disabled = true;
+
+                    // 调用分析函数
+                    const result = await analyzeText(text);
+
+                    // 更新UI显示结果
+                    aiScore.textContent = `${result.score}%`;
+                    
+                    resultDetails.innerHTML = result.details.map(detail => `
+                        <div class="detail-item">
+                            <div class="detail-title">
+                                <span>${detail.title}</span>
+                                <span class="detail-score">${detail.score}%</span>
+                            </div>
+                            <div class="detail-content">${detail.content}</div>
+                        </div>
+                    `).join('');
+
+                    // 扣除积分
+                    if (userPoints !== 'unlimited') {
+                        localStorage.setItem('userPoints', (parseInt(userPoints) - 10).toString());
+                    }
+
+                    // 保存检测历史
+                    const history = JSON.parse(localStorage.getItem('detectionHistory') || '[]');
+                    history.push({
+                        date: new Date().toISOString(),
+                        text: text,
+                        score: result.score,
+                        details: result.details
+                    });
+                    localStorage.setItem('detectionHistory', JSON.stringify(history));
+
+                } catch (error) {
+                    alert('检测过程中出现错误，请稍后重试');
+                    console.error('Detection error:', error);
+                } finally {
+                    // 隐藏加载动画，显示结果
+                    loading.style.display = 'none';
+                    resultSection.style.display = 'block';
+                    detectBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

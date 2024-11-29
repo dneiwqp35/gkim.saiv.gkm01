@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章阅读 - 古韵江湖AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .article-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .article-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .article-meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .article-content {
+            line-height: 1.8;
+            color: #333;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <!-- 使用与其他页面相同的导航栏 -->
+        <nav>
+            <div class="logo">
+                <span class="year-2">2</span><span class="year-0">0</span><span class="year-2-2">2</span><span class="year-4">4</span>
+                <span class="brand">古韵江湖</span><span class="ai">AI</span>
+            </div>
+            <ul>
+                <li><a href="read.html" class="active">阅读</a></li>
+                <li><a href="similarity.html">相似度对比</a></li>
+                <li><a href="index.html">AI内容检测</a></li>
+                <li><a href="thesis.html">论文AI检测</a></li>
+                <li><a href="reduce.html">降AI</a></li>
+                <li><a href="reduce2.html">降AI2.0</a></li>
+                <li><a href="smart-edit.html">智改</a></li>
+                <li><a href="pricing.html">价格</a></li>
+                <li><a href="notice.html">公告</a></li>
+                <li><a href="login.html" class="login-btn">登录</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="article-container">
+        <h1 class="article-title" id="articleTitle"></h1>
+        <div class="article-meta">
+            <span id="articleDate"></span>
+            <span id="articlePlatform"></span>
+        </div>
+        <div class="article-content" id="articleContent"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从 URL 参数获取文章信息
+            const urlParams = new URLSearchParams(window.location.search);
+            const title = urlParams.get('title');
+            const platform = urlParams.get('platform');
+            
+            if (title) {
+                document.getElementById('articleTitle').textContent = decodeURIComponent(title);
+                document.getElementById('articleDate').textContent = new Date().toLocaleDateString();
+                document.getElementById('articlePlatform').textContent = platform || '公众号';
+                // 这里可以添加获取文章内容的逻辑
+                document.getElementById('articleContent').textContent = '文章内容加载中...';
+            } else {
+                document.getElementById('articleContent').textContent = '文章不存在或已被删除';
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>论文AI检测 - 古韵江湖AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .main-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .upload-section {
+            background: #fff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .upload-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .upload-desc {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: #1890ff;
+            background: #f0f7ff;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #1890ff;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: #666;
+        }
+
+        .file-info {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f8f8;
+            border-radius: 4px;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 2px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-inner {
+            height: 100%;
+            background: #1890ff;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .result-section {
+            display: none;
+            background: #fff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .score-overview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .score-card {
+            text-align: center;
+            padding: 20px;
+            background: #f8f8f8;
+            border-radius: 8px;
+        }
+
+        .score-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .score-value.safe {
+            color: #52c41a;
+        }
+
+        .score-value.warning {
+            color: #faad14;
+        }
+
+        .score-value.danger {
+            color: #ff4d4f;
+        }
+
+        .score-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .detail-section {
+            margin-top: 30px;
+        }
+
+        .detail-title {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .detail-list {
+            border: 1px solid #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .detail-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .detail-type {
+            color: #1890ff;
+            font-weight: 500;
+        }
+
+        .detail-location {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .detail-content {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .action-button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .primary-btn {
+            background: #1890ff;
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background: #40a9ff;
+        }
+
+        .secondary-btn {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .secondary-btn:hover {
+            background: #e8e8e8;
+        }
+
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <header>
+        <nav>
+            <div class="logo">
+                <span class="year-2">2</span><span class="year-0">0</span><span class="year-2-2">2</span><span class="year-4">4</span>
+                <span class="brand">古韵江湖</span><span class="ai">AI</span>
+            </div>
+            <ul>
+                <li><a href="read.html">阅读</a></li>
+                <li><a href="similarity.html">相似度对比</a></li>
+                <li><a href="index.html">AI内容检测</a></li>
+                <li><a href="thesis.html" class="active">论文AI检测</a></li>
+                <li><a href="reduce.html">降AI</a></li>
+                <li><a href="reduce2.html">降AI2.0</a></li>
+                <li><a href="smart-edit.html">智改</a></li>
+                <li><a href="pricing.html">价格</a></li>
+                <li><a href="notice.html">公告</a></li>
+                <li><a href="login.html" class="login-btn">登录</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="upload-section">
+            <h1 class="upload-title">论文AI检测</h1>
+            <p class="upload-desc">支持docx、pdf、txt格式，单次最大支持50页</p>
+            
+            <input type="file" id="fileInput" accept=".docx,.pdf,.txt">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📄</div>
+                <p class="upload-text">点击或拖拽文件到此处上传</p>
+            </div>
+
+            <div class="file-info" id="fileInfo">
+                <p>文件名：<span id="fileName"></span></p>
+                <p>文件大小：<span id="fileSize"></span></p>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-inner" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="score-overview">
+                <div class="score-card">
+                    <div class="score-value" id="aiScore">0%</div>
+                    <div class="score-label">AI特征值</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-value" id="humanScore">0%</div>
+                    <div class="score-label">人工写作特征</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-value" id="confidenceScore">0%</div>
+                    <div class="score-label">置信度</div>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h2 class="detail-title">详细分析</h2>
+                <div class="detail-list" id="detailList">
+                    <!-- 详细分析内容将通过JavaScript动态添加 -->
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-button secondary-btn" id="downloadBtn">下载报告</button>
+                <button class="action-button primary-btn" id="reduceBtn">一键降重</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const progressBar = document.getElementById('progressBar');
+            const resultSection = document.getElementById('resultSection');
+
+            // 点击上传区域触发文件选择
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            // 处理文件拖放
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#1890ff';
+                uploadArea.style.background = '#f0f7ff';
+            });
+
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#ddd';
+                uploadArea.style.background = 'none';
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#ddd';
+                uploadArea.style.background = 'none';
+                
+                const files = e.dataTransfer.files;
+                if (files.length) {
+                    handleFile(files[0]);
+                }
+            });
+
+            // 处理文件选择
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+
+            function handleFile(file) {
+                // 检查文件类型
+                const validTypes = ['.docx', '.pdf', '.txt'];
+                const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+                
+                if (!validTypes.includes(fileExtension)) {
+                    alert('请上传docx、pdf或txt格式的文件');
+                    return;
+                }
+
+                // 显示文件信息
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                fileInfo.style.display = 'block';
+
+                // 模拟上传进度
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 5;
+                    progressBar.style.width = `${progress}%`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setTimeout(showResults, 500);
+                    }
+                }, 100);
+            }
+
+            function showResults() {
+                resultSection.style.display = 'block';
+                
+                // 模拟检测结果
+                document.getElementById('aiScore').textContent = '35%';
+                document.getElementById('humanScore').textContent = '65%';
+                document.getElementById('confidenceScore').textContent = '92%';
+
+                // 模拟详细分析
+                const details = [
+                    {
+                        type: 'AI特征',
+                        location: '第2段',
+                        content: '该段落展现出明显的AI写作特征，建议修改表达方式'
+                    },
+                    {
+                        type: '句式分析',
+                        location: '第5段',
+                        content: '句式过于规整，缺乏人文表达的自然变化'
+                    }
+                ];
+
+                document.getElementById('detailList').innerHTML = details.map(detail => `
+                    <div class="detail-item">
+                        <div class="detail-header">
+                            <span class="detail-type">${detail.type}</span>
+                            <span class="detail-location">${detail.location}</span>
+                        </div>
+                        <div class="detail-content">${detail.content}</div>
+                    </div>
+                `).join('');
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // 下载报告
+            document.getElementById('downloadBtn').addEventListener('click', function() {
+                alert('报告下载功能开发中...');
+            });
+
+            // 一键降重
+            document.getElementById('reduceBtn').addEventListener('click', function() {
+                window.location.href = 'reduce2.html';
+            });
+        });
+    </script>
+</body>
+</html> 

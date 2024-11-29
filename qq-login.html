@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QQ登录 - 古韵江湖AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .qq-login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .qq-login-box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .qr-code-wrapper {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #e5e5e5;
+        }
+
+        #qrCode {
+            width: 100%;
+            height: 100%;
+        }
+
+        .qr-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #12B7F5;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tips {
+            color: #666;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .refresh-btn {
+            display: none;
+            padding: 8px 20px;
+            background: #12B7F5;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 10px auto;
+        }
+
+        .refresh-btn:hover {
+            background: #0EA2E4;
+        }
+
+        .other-login {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .other-login a {
+            color: #12B7F5;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .other-login a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="qq-login-container">
+        <div class="qq-login-box">
+            <h2>QQ快速登录</h2>
+            <div class="qr-code-wrapper">
+                <div id="qrCode"></div>
+                <div class="qr-loading" id="qrLoading">
+                    <div class="spinner"></div>
+                    <p>二维码加载中...</p>
+                </div>
+            </div>
+            <p class="tips">请使用QQ扫描二维码登录</p>
+            <button class="refresh-btn" id="refreshBtn" onclick="refreshQRCode()">刷新二维码</button>
+            <div class="other-login">
+                <a href="login.html">返回其他登录方式</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script>
+        let qrCodeInstance = null;
+        let checkStatusInterval = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initQRCode();
+        });
+
+        async function initQRCode() {
+            const qrCode = document.getElementById('qrCode');
+            const qrLoading = document.getElementById('qrLoading');
+            const refreshBtn = document.getElementById('refreshBtn');
+
+            try {
+                // 清除现有内容和定时器
+                qrCode.innerHTML = '';
+                if (checkStatusInterval) {
+                    clearInterval(checkStatusInterval);
+                }
+
+                // 生成唯一的登录标识
+                const loginId = generateLoginId();
+                
+                // 生成二维码内容（实际使用时替换为真实的QQ登录URL）
+                const qrContent = `https://example.com/qq-login?id=${loginId}&t=${Date.now()}`;
+
+                // 生成二维码
+                qrCodeInstance = new QRCode(qrCode, {
+                    text: qrContent,
+                    width: 200,
+                    height: 200,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                // 隐藏加载状态
+                qrLoading.classList.add('hidden');
+                refreshBtn.style.display = 'none';
+
+                // 开始检查登录状态
+                startCheckingLoginStatus(loginId);
+
+                // 5分钟后显示刷新按钮
+                setTimeout(() => {
+                    refreshBtn.style.display = 'block';
+                }, 5 * 60 * 1000);
+
+            } catch (error) {
+                console.error('生成二维码失败:', error);
+                showError('二维码生成失败，请刷新页面重试');
+            }
+        }
+
+        function generateLoginId() {
+            return Math.random().toString(36).substr(2, 9);
+        }
+
+        function startCheckingLoginStatus(loginId) {
+            checkStatusInterval = setInterval(async () => {
+                try {
+                    // 模拟检查登录状态的API调用
+                    const response = await checkLoginStatus(loginId);
+                    
+                    if (response.success) {
+                        clearInterval(checkStatusInterval);
+                        handleLoginSuccess(response.token);
+                    }
+                } catch (error) {
+                    console.error('检查登录状态失败:', error);
+                }
+            }, 2000);
+        }
+
+        async function checkLoginStatus(loginId) {
+            // 模拟API调用
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({ success: false });
+                }, 1000);
+            });
+        }
+
+        function handleLoginSuccess(token) {
+            // 存储登录token
+            localStorage.setItem('token', token);
+            
+            // 显示成功消息
+            showMessage('登录成功，正在跳转...', 'success');
+            
+            // 跳转到首页
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+        }
+
+        function refreshQRCode() {
+            const qrLoading = document.getElementById('qrLoading');
+            const refreshBtn = document.getElementById('refreshBtn');
+            
+            qrLoading.classList.remove('hidden');
+            refreshBtn.style.display = 'none';
+            
+            initQRCode();
+        }
+
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        function showError(message) {
+            showMessage(message, 'error');
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会员价格 - 古韵江湖AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .pricing-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .pricing-title {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .pricing-subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .pricing-plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .pricing-plan {
+            background: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-plan:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .plan-popular {
+            position: absolute;
+            top: 20px;
+            right: -35px;
+            background: #ff4d4f;
+            color: white;
+            padding: 5px 40px;
+            transform: rotate(45deg);
+            font-size: 12px;
+        }
+
+        .plan-name {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .plan-price {
+            font-size: 48px;
+            color: #1890ff;
+            margin-bottom: 20px;
+        }
+
+        .plan-price small {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 30px;
+        }
+
+        .plan-features li {
+            padding: 10px 0;
+            color: #666;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+
+        .plan-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #1890ff;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .plan-button:hover {
+            background: #40a9ff;
+        }
+
+        .plan-button.outlined {
+            background: transparent;
+            border: 2px solid #1890ff;
+            color: #1890ff;
+        }
+
+        .plan-button.outlined:hover {
+            background: #1890ff;
+            color: white;
+        }
+
+        .pricing-faq {
+            margin-top: 60px;
+        }
+
+        .faq-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .faq-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .faq-question {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .faq-answer {
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <header>
+        <nav>
+            <div class="logo">
+                <span class="year-2">2</span><span class="year-0">0</span><span class="year-2-2">2</span><span class="year-4">4</span>
+                <span class="brand">古韵江湖</span><span class="ai">AI</span>
+            </div>
+            <ul>
+                <li><a href="read.html">阅读</a></li>
+                <li><a href="similarity.html">相似度对比</a></li>
+                <li><a href="index.html">AI内容检测</a></li>
+                <li><a href="thesis.html">论文AI检测</a></li>
+                <li><a href="reduce.html">降AI</a></li>
+                <li><a href="reduce2.html">降AI2.0</a></li>
+                <li><a href="smart-edit.html">智改</a></li>
+                <li><a href="pricing.html" class="active">价格</a></li>
+                <li><a href="notice.html">公告</a></li>
+                <li><a href="login.html" class="login-btn">登录</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="pricing-container">
+        <div class="pricing-header">
+            <h1 class="pricing-title">选择适合您的会员方案</h1>
+            <p class="pricing-subtitle">灵活的会员方案，满足不同需求</p>
+        </div>
+
+        <div class="pricing-plans">
+            <div class="pricing-plan">
+                <div class="plan-name">基础版</div>
+                <div class="plan-price">
+                    ¥29<small>/月</small>
+                </div>
+                <ul class="plan-features">
+                    <li>每日100积分</li>
+                    <li>基础AI检测</li>
+                    <li>基础降重功能</li>
+                    <li>文章发布功能</li>
+                    <li>基础客服支持</li>
+                </ul>
+                <a href="#" class="plan-button outlined">立即开通</a>
+            </div>
+
+            <div class="pricing-plan">
+                <div class="plan-popular">最受欢迎</div>
+                <div class="plan-name">专业版</div>
+                <div class="plan-price">
+                    ¥69<small>/月</small>
+                </div>
+                <ul class="plan-features">
+                    <li>每日300积分</li>
+                    <li>高级AI检测</li>
+                    <li>专业降重功能</li>
+                    <li>无限文章发布</li>
+                    <li>优先客服支持</li>
+                </ul>
+                <a href="#" class="plan-button">立即开通</a>
+            </div>
+
+            <div class="pricing-plan">
+                <div class="plan-name">企业版</div>
+                <div class="plan-price">
+                    ¥199<small>/月</small>
+                </div>
+                <ul class="plan-features">
+                    <li>无限积分</li>
+                    <li>企业级AI检测</li>
+                    <li>专属降重方案</li>
+                    <li>团队账号管理</li>
+                    <li>24/7专属客服</li>
+                </ul>
+                <a href="#" class="plan-button outlined">立即开通</a>
+            </div>
+        </div>
+
+        <div class="pricing-faq">
+            <h2 class="faq-title">常见问题</h2>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question">如何选择合适的会员方案？</div>
+                    <div class="faq-answer">
+                        根据您的使用频率和需求选择。基础版适合个人轻度使用，专业版适合频繁使用者，企业版适合团队使用。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">可以随时更换会员方案吗？</div>
+                    <div class="faq-answer">
+                        是的，您可以随时升级或降级您的会员方案。费用将按实际使用天数计算。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">积分有效期是多久？</div>
+                    <div class="faq-answer">
+                        每日积分在24小时内有效，未使用的积分将自动清零。您可以通过会员等级提升每日可用积分数量。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查用户登录状态
+            const currentUser = localStorage.getItem('currentUser');
+            const currentPlan = localStorage.getItem('userPlan');
+
+            // 为按钮添加点击事件
+            document.querySelectorAll('.plan-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (!currentUser) {
+                        alert('请先登录后再开通会员');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    // 这里添加支付逻辑
+                    alert('支付功能开发中...');
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

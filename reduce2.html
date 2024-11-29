@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>降重AI2.0 - 古韵江湖AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .main-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .editor-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .editor-panel {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .panel-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .text-editor {
+            width: 100%;
+            height: 400px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: none;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .action-button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .reduce-btn {
+            background: #1890ff;
+            color: white;
+        }
+
+        .clear-btn {
+            background: #ff4d4f;
+            color: white;
+        }
+
+        .word-count {
+            text-align: right;
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 2px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-inner {
+            height: 100%;
+            background: #1890ff;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <span class="year-2">2</span><span class="year-0">0</span><span class="year-2-2">2</span><span class="year-4">4</span>
+                <span class="brand">古韵江湖</span><span class="ai">AI</span>
+            </div>
+            <ul>
+                <li><a href="read.html">阅读</a></li>
+                <li><a href="similarity.html">相似度对比</a></li>
+                <li><a href="index.html">AI内容检测</a></li>
+                <li><a href="thesis.html">论文AI检测</a></li>
+                <li><a href="reduce.html">降AI</a></li>
+                <li><a href="reduce2.html" class="active">降AI2.0</a></li>
+                <li><a href="smart-edit.html">智改</a></li>
+                <li><a href="pricing.html">价格</a></li>
+                <li><a href="notice.html">公告</a></li>
+                <li><a href="login.html" class="login-btn">登录</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <div class="editor-section">
+            <div class="editor-panel">
+                <div class="panel-title">
+                    <span>原文内容</span>
+                    <span class="word-count">字数：<span id="originalCount">0</span></span>
+                </div>
+                <textarea id="originalText" class="text-editor" placeholder="请输入需要降重的内容..."></textarea>
+            </div>
+            <div class="editor-panel">
+                <div class="panel-title">
+                    <span>降重结果</span>
+                    <span class="word-count">字数：<span id="resultCount">0</span></span>
+                </div>
+                <textarea id="resultText" class="text-editor" placeholder="降重后的内容将显示在这里..." readonly></textarea>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-inner" id="progressBar"></div>
+        </div>
+
+        <div class="button-group">
+            <button class="action-button clear-btn" id="clearBtn">清空重写</button>
+            <button class="action-button reduce-btn" id="reduceBtn">开始降重</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const originalText = document.getElementById('originalText');
+            const resultText = document.getElementById('resultText');
+            const originalCount = document.getElementById('originalCount');
+            const resultCount = document.getElementById('resultCount');
+            const progressBar = document.getElementById('progressBar');
+            const clearBtn = document.getElementById('clearBtn');
+            const reduceBtn = document.getElementById('reduceBtn');
+
+            // 字数统计
+            function updateWordCount(text, display) {
+                const count = text.trim().length;
+                display.textContent = count;
+            }
+
+            originalText.addEventListener('input', () => {
+                updateWordCount(originalText.value, originalCount);
+            });
+
+            // 清空功能
+            clearBtn.addEventListener('click', function() {
+                if (originalText.value.trim()) {
+                    if (!confirm('确定要清空所有内容吗？')) {
+                        return;
+                    }
+                }
+                originalText.value = '';
+                resultText.value = '';
+                originalCount.textContent = '0';
+                resultCount.textContent = '0';
+                progressBar.style.width = '0';
+            });
+
+            // 降重功能
+            reduceBtn.addEventListener('click', async function() {
+                if (!originalText.value.trim()) {
+                    alert('请输入需要降重的内容');
+                    return;
+                }
+
+                // 检查用户登录和积分
+                const currentUser = localStorage.getItem('currentUser');
+                if (!currentUser) {
+                    alert('请先登录');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                let userPoints = parseInt(localStorage.getItem('userPoints') || '0');
+                if (userPoints < 30) {
+                    alert('积分不足，请充值');
+                    return;
+                }
+
+                // 扣除积分
+                userPoints -= 30;
+                localStorage.setItem('userPoints', userPoints.toString());
+
+                // 模拟降重过程
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 5;
+                    progressBar.style.width = `${progress}%`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        // 模拟降重结果
+                        const result = simulateReduce(originalText.value);
+                        resultText.value = result;
+                        updateWordCount(result, resultCount);
+                    }
+                }, 100);
+            });
+
+            // 模拟降重算法
+            function simulateReduce(text) {
+                // 这里是简单的替换示例，实际应该调用后端API
+                let result = text;
+                const replacements = {
+                    '的': '之',
+                    '是': '为',
+                    '这个': '该',
+                    '因为': '由于',
+                    '所以': '因此'
+                };
+
+                Object.keys(replacements).forEach(key => {
+                    result = result.replace(new RegExp(key, 'g'), replacements[key]);
+                });
+
+                return result;
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,139 @@
+.pricing-container {
+    max-width: 1200px;
+    margin: 80px auto 40px;
+    padding: 0 20px;
+}
+
+.pricing-title {
+    text-align: center;
+    font-size: 32px;
+    color: #333;
+    margin-bottom: 40px;
+}
+
+.pricing-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    justify-content: center;
+}
+
+.pricing-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    position: relative;
+}
+
+.pricing-card:hover {
+    transform: translateY(-5px);
+}
+
+.professional {
+    border: 2px solid #1677ff;
+}
+
+.popular-tag {
+    position: absolute;
+    top: 12px;
+    right: -30px;
+    background: #1677ff;
+    color: white;
+    padding: 6px 30px;
+    transform: rotate(45deg);
+    font-size: 14px;
+}
+
+.card-header {
+    padding: 30px;
+    background: #f8f9fa;
+    text-align: center;
+}
+
+.card-header h2 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.price {
+    color: #1677ff;
+    font-size: 20px;
+}
+
+.price .amount {
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.price .period {
+    color: #666;
+    font-size: 16px;
+}
+
+.card-content {
+    padding: 30px;
+}
+
+.features {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.features li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    color: #666;
+}
+
+.check-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    background: #1677ff;
+    border-radius: 50%;
+    position: relative;
+}
+
+.check-icon::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+}
+
+.buy-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 8px;
+    background: #1677ff;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.buy-btn:hover {
+    background: #0e5edb;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .pricing-cards {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+} 
