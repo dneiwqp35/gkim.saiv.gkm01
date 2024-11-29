@@ -404,7 +404,7 @@
         publishForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // 检查登录状态
+            // 检查登��状态
             const currentUser = localStorage.getItem('currentUser');
             if (!currentUser) {
                 alert('请先登录');
@@ -459,7 +459,7 @@
             const articleTable = document.querySelector('.article-table tbody');
             const currentUser = localStorage.getItem('currentUser');
             
-            // 获取所有文章，不再过滤作者
+            // 获取所有文章
             let articles = JSON.parse(localStorage.getItem('articles') || '[]');
             
             // 排序
@@ -469,35 +469,8 @@
                 return valueB - valueA;
             });
 
-            // 渲染所有文章
-            articleTable.innerHTML = articles.map(article => `
-                <tr>
-                    <td>${article.title}</td>
-                    <td>
-                        <span class="platform-tag ${article.platform}">
-                            ${article.platform === 'wechat' ? '公众号' : '头条'}
-                        </span>
-                        ${article.category ? `<span class="category-tag">${article.category}</span>` : ''}
-                    </td>
-                    <td>${new Date(article.publishTime).toLocaleDateString()}</td>
-                    <td>${article.readCount || 0}</td>
-                    <td>
-                        <span class="like-count">${article.likeCount || 0}</span>
-                        <button class="like-btn" onclick="addLikeFunction('${article.id}')">
-                            👍
-                        </button>
-                    </td>
-                    <td>
-                        <div class="article-actions">
-                            <button class="action-btn" onclick="showQRCode('${article.url}')">查看</button>
-                            <button class="action-btn" onclick="showShareModal('${article.id}', '${article.title}', '${article.url}')">分享</button>
-                            ${currentUser === article.author ? 
-                                `<button class="action-btn" onclick="deleteArticle('${article.id}', '${article.author}')">删除</button>` 
-                                : ''}
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            // 渲染文章列表
+            renderArticles(articles, sortBy);
         }
 
         // 排序按钮点击事件
@@ -686,6 +659,7 @@
             const articleTable = document.querySelector('.article-table tbody');
             const currentUser = localStorage.getItem('currentUser');
             
+            // 确保即使未登录也能看到文章列表
             articleTable.innerHTML = articles.map(article => `
                 <tr>
                     <td>${article.title}</td>
@@ -699,9 +673,11 @@
                     <td>${article.readCount || 0}</td>
                     <td>
                         <span class="like-count">${article.likeCount || 0}</span>
-                        <button class="like-btn" onclick="addLikeFunction('${article.id}')">
-                            👍
-                        </button>
+                        ${currentUser ? `
+                            <button class="like-btn" onclick="addLikeFunction('${article.id}')">
+                                👍
+                            </button>
+                        ` : ''}
                     </td>
                     <td>
                         <div class="article-actions">
