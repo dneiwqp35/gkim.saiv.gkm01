@@ -249,12 +249,6 @@
             cursor: pointer;
         }
 
-        .share-option img {
-            width: 40px;
-            height: 40px;
-            margin-bottom: 8px;
-        }
-
         .share-option span {
             display: block;
             font-size: 12px;
@@ -351,19 +345,15 @@
             </div>
             <div class="share-options">
                 <div class="share-option" onclick="shareToWeChat()">
-                    <img src="assets/images/wechat.png" alt="微信">
                     <span>微信</span>
                 </div>
                 <div class="share-option" onclick="shareToWeibo()">
-                    <img src="assets/images/weibo.png" alt="微博">
                     <span>微博</span>
                 </div>
                 <div class="share-option" onclick="shareToQQ()">
-                    <img src="assets/images/qq.png" alt="QQ">
                     <span>QQ</span>
                 </div>
                 <div class="share-option" onclick="copyLink()">
-                    <img src="assets/images/link.png" alt="复制链接">
                     <span>复制链接</span>
                 </div>
             </div>
@@ -570,7 +560,7 @@
             window.open(weiboUrl, '_blank');
         };
 
-        // 分享���QQ
+        // 分享到QQ
         window.shareToQQ = function() {
             const shareModal = document.getElementById('shareModal');
             const url = shareModal.dataset.articleUrl;
