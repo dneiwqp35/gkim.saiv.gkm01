@@ -3,362 +3,656 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>降AI - 古韵江湖AI</title>
+    <title>阅读系统 - 古韵江湖AI</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .main-container {
+        /* 保持原有的功能相关样式 */
+        .container {
             max-width: 1200px;
-            margin: 40px auto;
+            margin: 20px auto;
             padding: 0 20px;
         }
 
-        .input-section {
+        .content-box {
             background: #fff;
             border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            padding: 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        .section-title {
-            font-size: 18px;
-            color: #333;
+        .form-group {
             margin-bottom: 15px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: #40a9ff;
+            transform: translateY(-1px);
+        }
+
+        .filter-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            border: 1px solid #e8e8e8;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .filter-btn.active {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+
+        /* 模态框样式 */
+        .qr-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #fff;
+            width: 360px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .points-info {
-            font-size: 14px;
-            color: #666;
+        .modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
         }
 
-        .text-editor {
-            width: 100%;
-            height: 300px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            resize: none;
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 10px;
-        }
-
-        .text-editor:focus {
-            outline: none;
-            border-color: #1890ff;
-            box-shadow: 0 0 0 2px rgba(24,144,255,0.2);
-        }
-
-        .word-count {
-            text-align: right;
-            color: #666;
-            font-size: 12px;
-        }
-
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .action-button {
-            padding: 10px 25px;
-            border: none;
-            border-radius: 4px;
+        .close-btn {
+            font-size: 20px;
+            color: #999;
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
+            padding: 4px;
         }
 
-        .reduce-btn {
-            background: #1890ff;
+        .qrcode-container {
+            padding: 24px;
+            text-align: center;
+        }
+
+        #qrcode {
+            display: block;
+            margin: 0 auto;
+            padding: 10px;
+            background: #fff;
+        }
+
+        .qrcode-tip {
+            margin-top: 16px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* 添加表格样式 */
+        .article-table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .article-table th,
+        .article-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .article-table th {
+            background: #fafafa;
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .article-table td {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .article-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .article-table .platform-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .platform-tag.wechat {
+            background: #07c160;
             color: white;
         }
 
-        .reduce-btn:hover {
-            background: #40a9ff;
-        }
-
-        .clear-btn {
+        .platform-tag.toutiao {
             background: #ff4d4f;
             color: white;
         }
 
-        .clear-btn:hover {
-            background: #ff7875;
-        }
-
-        .result-section {
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .ai-score {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .score-circle {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 8px solid #1890ff;
-            margin: 0 auto 15px;
+        .article-actions {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 4px 8px;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            background: white;
+        }
+
+        .action-btn:hover {
             color: #1890ff;
+            border-color: #1890ff;
         }
 
-        .score-label {
-            font-size: 16px;
-            color: #666;
-        }
-
-        .suggestions {
-            margin-top: 20px;
-        }
-
-        .suggestion-item {
-            padding: 15px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .suggestion-item:last-child {
-            border-bottom: none;
-        }
-
-        .original-text {
-            color: #ff4d4f;
-            margin-bottom: 10px;
-        }
-
-        .suggested-text {
-            color: #52c41a;
-        }
-
-        .settings-panel {
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .settings-title {
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .settings-options {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 15px;
-        }
-
-        .setting-option {
-            display: flex;
+        /* 分享模态框样式 */
+        .share-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
             align-items: center;
-            gap: 5px;
         }
 
-        .setting-option input[type="radio"] {
-            margin: 0;
+        .share-options {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
         }
 
-        .setting-option label {
-            font-size: 14px;
+        .share-option {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .share-option img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 8px;
+        }
+
+        .share-option span {
+            display: block;
+            font-size: 12px;
             color: #666;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/jimp@0.16.1/browser/lib/jimp.min.js"></script>
 </head>
 <body>
-    <!-- 导航栏 -->
     <header>
         <nav>
             <div class="logo">
                 <span class="year-2">2</span><span class="year-0">0</span><span class="year-2-2">2</span><span class="year-4">4</span>
                 <span class="brand">古韵江湖</span><span class="ai">AI</span>
-                <span id="usernameDisplay" style="display: none;"></span>
             </div>
             <ul>
-                <li><a href="read.html">阅读</a></li>
+                <li><a href="read.html" class="active">阅读</a></li>
                 <li><a href="similarity.html">相似度对比</a></li>
                 <li><a href="index.html">AI内容检测</a></li>
                 <li><a href="thesis.html">论文AI检测</a></li>
-                <li><a href="reduce.html" class="active">降AI</a></li>
+                <li><a href="reduce.html">降AI</a></li>
                 <li><a href="reduce2.html">降AI2.0</a></li>
                 <li><a href="smart-edit.html">智改</a></li>
                 <li><a href="pricing.html">价格</a></li>
                 <li><a href="notice.html">公告</a></li>
-                <li><a href="login.html" class="login-btn" id="loginBtn">登录</a></li>
-                <li><a href="#" class="logout-btn" id="logoutBtn" style="display: none;">退出</a></li>
+                <li><a href="login.html" class="login-btn">登录</a></li>
             </ul>
         </nav>
     </header>
 
-    <div class="main-container">
-        <div class="settings-panel">
-            <h3 class="settings-title">降重设置</h3>
-            <div class="settings-options">
-                <div class="setting-option">
-                    <input type="radio" id="mode1" name="reduceMode" value="gentle" checked>
-                    <label for="mode1">温和降重</label>
+    <main>
+        <div class="container">
+            <div class="content-box">
+                <h2>发布文章</h2>
+                <form id="publishForm">
+                    <div class="form-group">
+                        <input type="text" id="articleTitle" class="input-field" placeholder="文章标题" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="url" id="articleUrl" class="input-field" placeholder="文章链接" required>
+                    </div>
+                    <div class="form-group">
+                        <select class="input-field platform-select" id="platform" required>
+                            <option value="toutiao">头条</option>
+                            <option value="wechat">公众号</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="articleDesc" class="input-field textarea" placeholder="文章简介" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">发布文章 (-10分)</button>
+                </form>
+                
+                <div class="filter-buttons">
+                    <button class="filter-btn" id="readCountSort">按阅读量排序</button>
+                    <button class="filter-btn" id="scoreSort">按分数排序</button>
                 </div>
-                <div class="setting-option">
-                    <input type="radio" id="mode2" name="reduceMode" value="normal">
-                    <label for="mode2">标准降重</label>
-                </div>
-                <div class="setting-option">
-                    <input type="radio" id="mode3" name="reduceMode" value="aggressive">
-                    <label for="mode3">强力降重</label>
-                </div>
+
+                <table class="article-table">
+                    <thead>
+                        <tr>
+                            <th>标题</th>
+                            <th>平台</th>
+                            <th>发布时间</th>
+                            <th>阅读量</th>
+                            <th>点赞数</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
+    </main>
 
-        <div class="input-section">
-            <div class="section-title">
-                <span>输入需要降重的内容</span>
-                <span class="points-info">本次降重将消耗 20 积分</span>
+    <div class="qr-modal" id="qrModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>扫描二维码阅读文章</h3>
+                <span class="close-btn">&times;</span>
             </div>
-            <textarea id="inputText" class="text-editor" placeholder="请输入需要降重的内容..."></textarea>
-            <div class="word-count">
-                字数：<span id="wordCount">0</span>
+            <div class="qrcode-container">
+                <img id="qrcode" alt="二维码" style="width:200px; height:200px;">
+                <p class="qrcode-tip">请使用手机扫描二维码阅读文章</p>
             </div>
         </div>
+    </div>
 
-        <div class="button-group">
-            <button class="action-button clear-btn" id="clearBtn">清空重写</button>
-            <button class="action-button reduce-btn" id="reduceBtn">开始降重</button>
-        </div>
-
-        <div class="result-section" id="resultSection" style="display: none;">
-            <div class="ai-score">
-                <div class="score-circle">
-                    <span id="aiScore">0</span>%
+    <div class="share-modal" id="shareModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>分享文章</h3>
+                <span class="close-btn" onclick="closeShareModal()">&times;</span>
+            </div>
+            <div class="share-options">
+                <div class="share-option" onclick="shareToWeChat()">
+                    <img src="assets/images/wechat.png" alt="微信">
+                    <span>微信</span>
                 </div>
-                <div class="score-label">AI特征值</div>
+                <div class="share-option" onclick="shareToWeibo()">
+                    <img src="assets/images/weibo.png" alt="微博">
+                    <span>微博</span>
+                </div>
+                <div class="share-option" onclick="shareToQQ()">
+                    <img src="assets/images/qq.png" alt="QQ">
+                    <span>QQ</span>
+                </div>
+                <div class="share-option" onclick="copyLink()">
+                    <img src="assets/images/link.png" alt="复制链接">
+                    <span>复制链接</span>
+                </div>
             </div>
-
-            <div class="suggestions" id="suggestionList"></div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const inputText = document.getElementById('inputText');
-            const wordCount = document.getElementById('wordCount');
-            const clearBtn = document.getElementById('clearBtn');
-            const reduceBtn = document.getElementById('reduceBtn');
-            const resultSection = document.getElementById('resultSection');
-            const aiScore = document.getElementById('aiScore');
-            const suggestionList = document.getElementById('suggestionList');
-            const loginBtn = document.getElementById('loginBtn');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const usernameDisplay = document.getElementById('usernameDisplay');
+    document.addEventListener('DOMContentLoaded', function() {
+        const publishForm = document.getElementById('publishForm');
+        const titleInput = document.getElementById('articleTitle');
+        const urlInput = document.getElementById('articleUrl');
+        const platformSelect = document.getElementById('platform');
+        const descTextarea = document.getElementById('articleDesc');
+        const readCountBtn = document.getElementById('readCountSort');
+        const scoreBtn = document.getElementById('scoreSort');
 
-            // 检查用户登录状态
-            function checkUserStatus() {
-                const currentUser = localStorage.getItem('currentUser');
-                if (currentUser) {
-                    // 用户已登录
-                    loginBtn.style.display = 'none';
-                    logoutBtn.style.display = 'block';
-                    usernameDisplay.textContent = `欢迎, ${currentUser}`;
-                    usernameDisplay.style.display = 'inline';
-                    // 绑定退出功能
-                    logoutBtn.addEventListener('click', function() {
-                        localStorage.removeItem('currentUser');
-                        localStorage.removeItem('userPoints');
-                        checkUserStatus();
-                        alert('已成功退出登录');
-                    });
-                } else {
-                    // 用户未登录
-                    loginBtn.style.display = 'block';
-                    logoutBtn.style.display = 'none';
-                    usernameDisplay.style.display = 'none';
-                }
+        // 智能识别平台
+        function detectPlatform(url) {
+            url = url.toLowerCase();
+            if (url.includes('mp.weixin.qq.com') || url.includes('weixin')) {
+                platformSelect.value = 'wechat';
+                return 'wechat';
+            } else if (url.includes('toutiao.com') || url.includes('toutiao')) {
+                platformSelect.value = 'toutiao';
+                return 'toutiao';
+            }
+            return '';
+        }
+
+        // URL输入时自动识别平台
+        urlInput.addEventListener('input', function() {
+            detectPlatform(this.value);
+        });
+
+        // 发布文章
+        publishForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 检查登录状态
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                alert('请先登录');
+                window.location.href = 'login.html';
+                return;
             }
 
-            // 字数统计
-            inputText.addEventListener('input', function() {
-                const count = this.value.trim().length;
-                wordCount.textContent = count;
-            });
+            // 检查用户权限
+            const userRole = localStorage.getItem('userRole'); // 假设用户角色存储在localStorage中
+            if (userRole !== 'editor' && userRole !== 'admin') {
+                alert('您没有权限发布文章');
+                return;
+            }
 
-            // 清空功能
-            clearBtn.addEventListener('click', function() {
-                inputText.value = '';
-                wordCount.textContent = '0';
-                resultSection.style.display = 'none';
-            });
+            // 检查积分
+            let userPoints = localStorage.getItem('userPoints');
+            if (userPoints !== 'unlimited' && parseInt(userPoints) < 10) {
+                alert('积分不足，无法发布文章');
+                return;
+            }
 
-            // 降重功能
-            reduceBtn.addEventListener('click', function() {
-                // 检查输入内容长度
-                if (!inputText.value.trim() || inputText.value.trim().length < 10) {
-                    alert('输入内容过短,请输入至少10个字符');
-                    return; // 阻止提交
-                }
+            // 获取表单数据
+            const article = {
+                id: Date.now(),
+                title: titleInput.value,
+                url: urlInput.value,
+                platform: detectPlatform(urlInput.value) || platformSelect.value || 'toutiao',
+                description: descTextarea.value,
+                publishTime: new Date().toISOString(),
+                readCount: 0,
+                likeCount: 0,
+                author: currentUser,
+                createdAt: Date.now()
+            };
 
-                // 检查用户登录和积分
-                const currentUser = localStorage.getItem('currentUser');
-                if (!currentUser) {
-                    alert('请先登录');
-                    window.location.href = 'login.html';
-                    return;
-                }
+            // 保存文章
+            let articles = JSON.parse(localStorage.getItem('articles') || '[]');
+            articles.push(article);
+            localStorage.setItem('articles', JSON.stringify(articles));
 
-                let userPoints = parseInt(localStorage.getItem('userPoints') || '0');
-                if (userPoints < 20) {
-                    alert('积分不足，请充值');
-                    return;
-                }
+            // 扣除积分
+            if (userPoints !== 'unlimited') {
+                localStorage.setItem('userPoints', parseInt(userPoints) - 10);
+            }
 
-                // 扣除积分
-                userPoints -= 20;
-                localStorage.setItem('userPoints', userPoints.toString());
-
-                // 获取降重模式
-                const mode = document.querySelector('input[name="reduceMode"]:checked').value;
-
-                // 模拟降重结果
-                const newScore = Math.floor(Math.random() * 30);
-                aiScore.textContent = newScore;
-
-                // 模拟修改建议
-                const suggestions = [
-                    {
-                        original: '人工智能是当今科技发展的重要方向，它能够模拟人类的思维方式和行为模式，为人类社会带来巨大的变革。',
-                        suggested: '现代科技进步的核心领域之一是智能化技术，这种技术通过计算机系统来复现人类的认知过程，正在深刻改变我们的生活方式。'
-                    },
-                    {
-                        original: '随着互联网技术的快速发展，大数据和云计算已经成为推动社会进步的重要力量。',
-                        suggested: '网络科技的迅猛进步使得数据处理与远程运算能力显著提升，这些技术创新正在驱动着社会的转型升级。'
-                    }
-                ];
-
-                suggestionList.innerHTML = suggestions.map(suggestion => `
-                    <div class="suggestion-item">
-                        <div class="original-text">原文：${suggestion.original}</div>
-                        <div class="suggested-text">建议：${suggestion.suggested}</div>
-                    </div>
-                `).join('');
-
-                resultSection.style.display = 'block';
-            });
-
-            checkUserStatus();
+            // 刷新文章列表
+            loadArticles(currentSortType);
+            
+            // 重置表单
+            publishForm.reset();
+            alert('发布成功！');
         });
+
+        // 当前排序类型
+        let currentSortType = 'readCount';
+
+        // 加载文章列表
+        function loadArticles(sortBy) {
+            const articleTable = document.querySelector('.article-table tbody');
+            if (!articleTable) {
+                console.error('文章表格未找到');
+                return; // 如果未找到，提前返回
+            }
+
+            let articles = JSON.parse(localStorage.getItem('articles') || '[]');
+            
+            // 过滤掉超过24小时的文章
+            const currentTime = Date.now();
+            articles = articles.filter(article => (currentTime - article.createdAt) <= 24 * 60 * 60 * 1000);
+
+            // 排序
+            articles.sort((a, b) => {
+                const valueA = parseInt(a[sortBy]) || 0;
+                const valueB = parseInt(b[sortBy]) || 0;
+                return valueB - valueA;
+            });
+
+            // 渲染文章列表
+            articleTable.innerHTML = articles.map(article => `
+                <tr>
+                    <td>${article.title}</td>
+                    <td>
+                        <span class="platform-tag ${article.platform}">
+                            ${article.platform === 'wechat' ? '公众号' : '头条'}
+                        </span>
+                    </td>
+                    <td>${new Date(article.publishTime).toLocaleDateString()}</td>
+                    <td>${article.readCount || 0}</td>
+                    <td>${article.likeCount || 0}</td>
+                    <td>
+                        <div class="article-actions">
+                            <button class="action-btn" onclick="showQRCode('${article.url}')">查看</button>
+                            <button class="action-btn" onclick="showShareModal('${article.id}', '${article.title}', '${article.url}')">分享</button>
+                            <button class="action-btn" onclick="deleteArticle('${article.id}', '${article.author}')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 排序按钮点击事件
+        readCountBtn.addEventListener('click', function() {
+            currentSortType = 'readCount';
+            readCountBtn.classList.add('active');
+            scoreBtn.classList.remove('active');
+            loadArticles('readCount');
+        });
+
+        scoreBtn.addEventListener('click', function() {
+            currentSortType = 'likeCount';
+            scoreBtn.classList.add('active');
+            readCountBtn.classList.remove('active');
+            loadArticles('likeCount');
+        });
+
+        // 显示二维码
+        window.showQRCode = function(url) {
+            const modal = document.getElementById('qrModal');
+            const qrcodeImg = document.getElementById('qrcode');
+            qrcodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+            modal.style.display = 'flex';
+
+            // 更新阅读量
+            let articles = JSON.parse(localStorage.getItem('articles') || '[]');
+            const article = articles.find(a => a.url === url);
+            if (article) {
+                article.readCount = (parseInt(article.readCount) || 0) + 1;
+                localStorage.setItem('articles', JSON.stringify(articles));
+                loadArticles(currentSortType);
+            }
+        };
+
+        // 显示分享模态框
+        window.showShareModal = function(id, title, url) {
+            const shareModal = document.getElementById('shareModal');
+            shareModal.style.display = 'flex';
+            
+            // 保存当前分享的文章信息到模态框
+            shareModal.dataset.articleUrl = url;
+            shareModal.dataset.articleTitle = title;
+        };
+
+        // 关闭分享模态框
+        window.closeShareModal = function() {
+            document.getElementById('shareModal').style.display = 'none';
+        };
+
+        // 分享到微信
+        window.shareToWeChat = function() {
+            const shareModal = document.getElementById('shareModal');
+            const url = shareModal.dataset.articleUrl;
+            const title = shareModal.dataset.articleTitle;
+            
+            // 这里可以调用微信分享API
+            alert('请在微信中打开分享');
+        };
+
+        // 分享到微博
+        window.shareToWeibo = function() {
+            const shareModal = document.getElementById('shareModal');
+            const url = shareModal.dataset.articleUrl;
+            const title = shareModal.dataset.articleTitle;
+            
+            const weiboUrl = `http://service.weibo.com/share/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+            window.open(weiboUrl, '_blank');
+        };
+
+        // 分享���QQ
+        window.shareToQQ = function() {
+            const shareModal = document.getElementById('shareModal');
+            const url = shareModal.dataset.articleUrl;
+            const title = shareModal.dataset.articleTitle;
+            
+            const qqUrl = `http://connect.qq.com/widget/shareqq/index.html?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+            window.open(qqUrl, '_blank');
+        };
+
+        // 复制链接
+        window.copyLink = function() {
+            const shareModal = document.getElementById('shareModal');
+            const url = shareModal.dataset.articleUrl;
+            
+            navigator.clipboard.writeText(url).then(function() {
+                alert('链接已复制到剪贴板');
+                closeShareModal();
+            }).catch(function(err) {
+                console.error('无法复制链接: ', err);
+                alert('复制失败，请手动复制');
+            });
+        };
+
+        // 删除文章
+        window.deleteArticle = function(id, author) {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                alert('请先登录');
+                return;
+            }
+
+            if (currentUser !== author) {
+                alert('您只能删除自己发布的文章');
+                return;
+            }
+
+            let articles = JSON.parse(localStorage.getItem('articles') || '[]');
+            const articleToDelete = articles.find(article => article.id.toString() === id);
+            if (!articleToDelete) {
+                alert('文章未找到');
+                return;
+            }
+
+            const currentTime = Date.now();
+            const timeDiff = currentTime - articleToDelete.createdAt;
+
+            if (timeDiff < 24 * 60 * 60 * 1000) {
+                alert('文章在发布后24小时内无法删除。');
+                return;
+            }
+
+            if (confirm('确定要删除这篇文章吗？')) {
+                articles = articles.filter(article => article.id.toString() !== id);
+                localStorage.setItem('articles', JSON.stringify(articles));
+                loadArticles(currentSortType);
+                alert('文章已删除');
+            }
+        };
+
+        // 初始化加载
+        loadArticles('readCount');
+    });
+
+    // 关闭二维码模态框
+    document.querySelector('.close-btn').addEventListener('click', function() {
+        document.getElementById('qrModal').style.display = 'none';
+    });
+
+    // 点击模态框外部关闭
+    document.getElementById('qrModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.style.display = 'none';
+        }
+    });
+
+    // 点击分享模态框外部关闭
+    document.getElementById('shareModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.style.display = 'none';
+        }
+    });
     </script>
+    <script src="assets/js/read.js"></script>
 </body>
-</html> 
+</html>
