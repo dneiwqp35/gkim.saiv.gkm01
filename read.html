@@ -282,7 +282,6 @@
                 <li><a href="notice.html">公告</a></li>
                 <li><a href="login.html" class="login-btn">登录</a></li>
             </ul>
-            <span id="userName" class="user-name" style="margin-left: auto; color: white;"></span>
         </nav>
     </header>
 
@@ -375,23 +374,69 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        loadArticles('readCount'); // 加载文章列表
-
-        // 发布文章的事件监听
         const publishForm = document.getElementById('publishForm');
+        const titleInput = document.getElementById('articleTitle');
+        const urlInput = document.getElementById('articleUrl');
+        const platformSelect = document.getElementById('platform');
+        const descTextarea = document.getElementById('articleDesc');
+        const readCountBtn = document.getElementById('readCountSort');
+        const scoreBtn = document.getElementById('scoreSort');
+
+        // 智能识别平台
+        function detectPlatform(url) {
+            url = url.toLowerCase();
+            if (url.includes('mp.weixin.qq.com') || url.includes('weixin')) {
+                platformSelect.value = 'wechat';
+                return 'wechat';
+            } else if (url.includes('toutiao.com') || url.includes('toutiao')) {
+                platformSelect.value = 'toutiao';
+                return 'toutiao';
+            }
+            return '';
+        }
+
+        // URL输入时自动识别平台
+        urlInput.addEventListener('input', function() {
+            detectPlatform(this.value);
+        });
+
+        // 发布文章
         publishForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // 检查登录状态
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                alert('请先登录');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // 检查用户权限
+            const userRole = localStorage.getItem('userRole'); // 假设用户角色存储在localStorage中
+            if (userRole !== 'editor' && userRole !== 'admin') {
+                alert('您没有权限发布文章');
+                return;
+            }
+
+            // 检查积分
+            let userPoints = localStorage.getItem('userPoints');
+            if (userPoints !== 'unlimited' && parseInt(userPoints) < 10) {
+                alert('积分不足，无法发布文章');
+                return;
+            }
+
             // 获取表单数据
             const article = {
                 id: Date.now(),
-                title: document.getElementById('articleTitle').value,
-                url: document.getElementById('articleUrl').value,
-                platform: document.getElementById('platform').value,
-                description: document.getElementById('articleDesc').value,
+                title: titleInput.value,
+                url: urlInput.value,
+                platform: detectPlatform(urlInput.value) || platformSelect.value || 'toutiao',
+                description: descTextarea.value,
                 publishTime: new Date().toISOString(),
                 readCount: 0,
                 likeCount: 0,
-                author: localStorage.getItem('currentUser')
+                author: currentUser
             };
 
             // 保存文章
@@ -399,36 +444,176 @@
             articles.push(article);
             localStorage.setItem('articles', JSON.stringify(articles));
 
+            // 扣除积分
+            if (userPoints !== 'unlimited') {
+                localStorage.setItem('userPoints', parseInt(userPoints) - 10);
+            }
+
             // 刷新文章列表
-            loadArticles('readCount');
+            loadArticles(currentSortType);
+            
+            // 重置表单
             publishForm.reset();
             alert('发布成功！');
         });
+
+        // 当前排序类型
+        let currentSortType = 'readCount';
+
+        // 加载文章列表
+        function loadArticles(sortBy) {
+            const articleTable = document.querySelector('.article-table tbody');
+            let articles = JSON.parse(localStorage.getItem('articles') || '[]');
+            
+            // 排序
+            articles.sort((a, b) => {
+                const valueA = parseInt(a[sortBy]) || 0;
+                const valueB = parseInt(b[sortBy]) || 0;
+                return valueB - valueA;
+            });
+
+            // 渲染文章列表
+            articleTable.innerHTML = articles.map(article => `
+                <tr>
+                    <td>${article.title}</td>
+                    <td>
+                        <span class="platform-tag ${article.platform}">
+                            ${article.platform === 'wechat' ? '公众号' : '头条'}
+                        </span>
+                    </td>
+                    <td>${new Date(article.publishTime).toLocaleDateString()}</td>
+                    <td>${article.readCount || 0}</td>
+                    <td>${article.likeCount || 0}</td>
+                    <td>
+                        <div class="article-actions">
+                            <button class="action-btn" onclick="showQRCode('${article.url}')">查看</button>
+                            <button class="action-btn" onclick="showShareModal('${article.id}', '${article.title}', '${article.url}')">分享</button>
+                            <button class="action-btn" onclick="deleteArticle('${article.id}', '${article.author}')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 排序按钮点击事件
+        readCountBtn.addEventListener('click', function() {
+            currentSortType = 'readCount';
+            readCountBtn.classList.add('active');
+            scoreBtn.classList.remove('active');
+            loadArticles('readCount');
+        });
+
+        scoreBtn.addEventListener('click', function() {
+            currentSortType = 'likeCount';
+            scoreBtn.classList.add('active');
+            readCountBtn.classList.remove('active');
+            loadArticles('likeCount');
+        });
+
+        // 显示二维码
+        window.showQRCode = function(url) {
+            const modal = document.getElementById('qrModal');
+            const qrcodeImg = document.getElementById('qrcode');
+            qrcodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+            modal.style.display = 'flex';
+
+            // 更新阅读量
+            let articles = JSON.parse(localStorage.getItem('articles') || '[]');
+            const article = articles.find(a => a.url === url);
+            if (article) {
+                article.readCount = (parseInt(article.readCount) || 0) + 1;
+                localStorage.setItem('articles', JSON.stringify(articles));
+                loadArticles(currentSortType);
+            }
+        };
+
+        // 显示分享模态框
+        window.showShareModal = function(id, title, url) {
+            const shareModal = document.getElementById('shareModal');
+            shareModal.style.display = 'flex';
+            
+            // 保存当前分享的文章信息到模态框
+            shareModal.dataset.articleUrl = url;
+            shareModal.dataset.articleTitle = title;
+        };
+
+        // 关闭分享模态框
+        window.closeShareModal = function() {
+            document.getElementById('shareModal').style.display = 'none';
+        };
+
+        // 分享到微信
+        window.shareToWeChat = function() {
+            const shareModal = document.getElementById('shareModal');
+            const url = shareModal.dataset.articleUrl;
+            const title = shareModal.dataset.articleTitle;
+            
+            // 这里可以调用微信分享API
+            alert('请在微信中打开分享');
+        };
+
+        // 分享到微博
+        window.shareToWeibo = function() {
+            const shareModal = document.getElementById('shareModal');
+            const url = shareModal.dataset.articleUrl;
+            const title = shareModal.dataset.articleTitle;
+            
+            const weiboUrl = `http://service.weibo.com/share/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+            window.open(weiboUrl, '_blank');
+        };
+
+        // 分享到QQ
+        window.shareToQQ = function() {
+            const shareModal = document.getElementById('shareModal');
+            const url = shareModal.dataset.articleUrl;
+            const title = shareModal.dataset.articleTitle;
+            
+            const qqUrl = `http://connect.qq.com/widget/shareqq/index.html?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+            window.open(qqUrl, '_blank');
+        };
+
+        // 复制链接
+        window.copyLink = function() {
+            const shareModal = document.getElementById('shareModal');
+            const url = shareModal.dataset.articleUrl;
+            
+            navigator.clipboard.writeText(url).then(function() {
+                alert('链接已复制到剪贴板');
+                closeShareModal();
+            }).catch(function(err) {
+                console.error('无法复制链接: ', err);
+                alert('复制失败，请手动复制');
+            });
+        };
+
+        // 删除文章
+        window.deleteArticle = function(id, author) {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                alert('请先登录');
+                return;
+            }
+
+            if (currentUser !== author) {
+                alert('您只能删除自己发布的文章');
+                return;
+            }
+
+            if (confirm('确定要删除这篇文章吗？')) {
+                let articles = JSON.parse(localStorage.getItem('articles') || '[]');
+                articles = articles.filter(article => article.id.toString() !== id);
+                localStorage.setItem('articles', JSON.stringify(articles));
+                loadArticles(currentSortType);
+                alert('文章已删除');
+            }
+        };
+
+        // 初始化加载
+        loadArticles('readCount');
+        
+        // 清空本地存储的文章数据（初始化）
+        localStorage.removeItem('articles');
     });
-
-    // 加载文章列表的函数
-    function loadArticles(sortBy) {
-        const articleTable = document.querySelector('.article-table tbody');
-        let articles = JSON.parse(localStorage.getItem('articles') || '[]');
-
-        // 排序
-        articles.sort((a, b) => b[sortBy] - a[sortBy]);
-
-        // 渲染文章列表
-        articleTable.innerHTML = articles.map(article => `
-            <tr>
-                <td>${article.title}</td>
-                <td>${article.platform}</td>
-                <td>${new Date(article.publishTime).toLocaleDateString()}</td>
-                <td>${article.readCount}</td>
-                <td>${article.likeCount}</td>
-                <td>
-                    <button onclick="showQRCode('${article.url}')">查看</button>
-                    <button onclick="showShareModal('${article.id}', '${article.title}', '${article.url}')">分享</button>
-                </td>
-            </tr>
-        `).join('');
-    }
 
     // 关闭二维码模态框
     document.querySelector('.close-btn').addEventListener('click', function() {
@@ -449,31 +634,19 @@
         }
     });
 
-    // 清空所有输入框的值
-    function clearInputFields() {
+    // 添加清空内容的脚本
+    document.addEventListener('DOMContentLoaded', function() {
+        // 清空所有输入框的值
         document.getElementById('articleTitle').value = '';
         document.getElementById('articleUrl').value = '';
         document.getElementById('articleDesc').value = '';
-    }
-
-    // 清空本地存储的文章数据
-    localStorage.removeItem('articles');
-
-    // 清空表格内容
-    document.querySelector('.article-table tbody').innerHTML = '';
-
-    // Display the user's name after login
-    function displayUserName() {
-        const userName = localStorage.getItem('currentUser');
-        if (userName) {
-            document.getElementById('userName').textContent = userName;
-        } else {
-            document.getElementById('userName').textContent = '未登录'; // 如果没有用户，显示未登录
-        }
-    }
-
-    // Call this function after the login logic
-    displayUserName();
+        
+        // 清空本地存储的文章数据
+        localStorage.removeItem('articles');
+        
+        // 清空表格内容
+        document.querySelector('.article-table tbody').innerHTML = '';
+    });
     </script>
     <script src="assets/js/read.js"></script>
 </body>
