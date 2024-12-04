@@ -401,7 +401,7 @@
             }
 
             // 检查用户权限
-            const userRole = localStorage.getItem('userRole'); // 假设用户角色存储在localStorage中
+            const userRole = localStorage.getItem('userRole');
             if (userRole !== 'editor' && userRole !== 'admin') {
                 alert('您没有权限发布文章');
                 return;
@@ -416,7 +416,6 @@
 
             // 获取表单数据
             const article = {
-                id: Date.now(),
                 title: titleInput.value,
                 url: `https://yourwebsite.com/articles/${Date.now()}`,
                 platform: detectPlatform(urlInput.value) || platformSelect.value || 'toutiao',
@@ -428,22 +427,25 @@
                 createdAt: Date.now()
             };
 
-            // 保存文章
-            let articles = JSON.parse(localStorage.getItem('articles') || '[]');
-            articles.push(article);
-            localStorage.setItem('articles', JSON.stringify(articles));
-
-            // 扣除积分
-            if (userPoints !== 'unlimited') {
-                localStorage.setItem('userPoints', parseInt(userPoints) - 10);
-            }
-
-            // 刷新文章列表
-            loadArticles(currentSortType);
-            
-            // 重置表单
-            publishForm.reset();
-            alert('发布成功！');
+            // 发送请求到后端 API 保存文章
+            fetch('https://yourwebsite.com/api/articles', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(article)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 处理成功响应
+                alert('发布成功！');
+                loadArticles(currentSortType); // 刷新文章列表
+                publishForm.reset(); // 重置表单
+            })
+            .catch(error => {
+                console.error('发布文章失败:', error);
+                alert('发布失败，请重试');
+            });
         });
 
         // 当前排序类型
