@@ -457,46 +457,33 @@
 
         // 加载文章列表
         function loadArticles(sortBy) {
-            const articleTable = document.querySelector('.article-table tbody');
-            if (!articleTable) {
-                console.error('文章表格未找到');
-                return; // 如果未找到，提前返回
-            }
-
-            let articles = JSON.parse(localStorage.getItem('articles') || '[]');
-            
-            // 过滤掉超过24小时的文章
-            const currentTime = Date.now();
-            articles = articles.filter(article => (currentTime - article.createdAt) <= 24 * 60 * 60 * 1000);
-
-            // 排序
-            articles.sort((a, b) => {
-                const valueA = parseInt(a[sortBy]) || 0;
-                const valueB = parseInt(b[sortBy]) || 0;
-                return valueB - valueA;
-            });
-
-            // 渲染文章列表
-            articleTable.innerHTML = articles.map(article => `
-                <tr>
-                    <td>${article.title}</td>
-                    <td>
-                        <span class="platform-tag ${article.platform}">
-                            ${article.platform === 'wechat' ? '公众号' : '头条'}
-                        </span>
-                    </td>
-                    <td>${new Date(article.publishTime).toLocaleDateString()}</td>
-                    <td>${article.readCount || 0}</td>
-                    <td>${article.likeCount || 0}</td>
-                    <td>
-                        <div class="article-actions">
-                            <button class="action-btn" onclick="showQRCode('${article.url}')">查看</button>
-                            <button class="action-btn" onclick="showShareModal('${article.id}', '${article.title}', '${article.url}')">分享</button>
-                            <button class="action-btn" onclick="deleteArticle('${article.id}', '${article.author}')">删除</button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            fetch('http://localhost:3000/api/articles')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('网络响应不是 OK');
+                    }
+                    return response.json();
+                })
+                .then(articles => {
+                    console.log('获取到的文章:', articles); // 打印获取到的文章
+                    // 渲染文章列表
+                    const articleTable = document.querySelector('.article-table tbody');
+                    articleTable.innerHTML = articles.map(article => `
+                        <tr>
+                            <td>${article.title}</td>
+                            <td>${article.platform}</td>
+                            <td>${new Date(article.publishTime).toLocaleString()}</td>
+                            <td>${article.readCount}</td>
+                            <td>${article.likeCount}</td>
+                            <td>
+                                <button onclick="showQRCode('${article.url}')">查看</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                })
+                .catch(error => {
+                    console.error('加载文章失败:', error);
+                });
         }
 
         // 排序按钮点击事件
