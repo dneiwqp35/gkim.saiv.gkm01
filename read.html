@@ -418,7 +418,7 @@
             const article = {
                 id: Date.now(),
                 title: titleInput.value,
-                url: urlInput.value,
+                url: `https://yourwebsite.com/articles/${Date.now()}`,
                 platform: detectPlatform(urlInput.value) || platformSelect.value || 'toutiao',
                 description: descTextarea.value,
                 publishTime: new Date().toISOString(),
