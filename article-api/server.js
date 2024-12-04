@@ -23,7 +23,7 @@ app.post('/api/articles', (req, res) => {
     const article = {
         id: Date.now(),
         title: req.body.title,
-        url: req.body.url,
+        url: req.body.url, // 确保这里的 URL 是最新的
         platform: req.body.platform,
         description: req.body.description,
         publishTime: req.body.publishTime,
@@ -33,7 +33,8 @@ app.post('/api/articles', (req, res) => {
         createdAt: req.body.createdAt
     };
     articles.push(article);
-    res.status(201).json(article);
+    console.log('发布的文章:', article); // 打印发布的文章
+    res.status(201).json(article); // 返回最新的文章对象
 });
 
 // 获取所有文章的 API

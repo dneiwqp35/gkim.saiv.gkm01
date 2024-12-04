@@ -417,7 +417,7 @@
             // 获取表单数据
             const article = {
                 title: titleInput.value,
-                url: `https://yourwebsite.com/articles/${Date.now()}`,
+                url: urlInput.value,
                 platform: detectPlatform(urlInput.value) || platformSelect.value || 'toutiao',
                 description: descTextarea.value,
                 publishTime: new Date().toISOString(),
@@ -445,6 +445,7 @@
                 console.log('发布成功:', data);
                 loadArticles(currentSortType); // 刷新文章列表
                 publishForm.reset(); // 重置表单
+                showQRCode(data.url); // 使用最新的文章链接生成二维码
             })
             .catch(error => {
                 console.error('发布失败:', error);
@@ -507,15 +508,7 @@
             const qrcodeImg = document.getElementById('qrcode');
             qrcodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
             modal.style.display = 'flex';
-
-            // 更新阅读量
-            let articles = JSON.parse(localStorage.getItem('articles') || '[]');
-            const article = articles.find(a => a.url === url);
-            if (article) {
-                article.readCount = (parseInt(article.readCount) || 0) + 1;
-                localStorage.setItem('articles', JSON.stringify(articles));
-                loadArticles(currentSortType);
-            }
+            console.log('生成的文章链接:', url);
         };
 
         // 显示分享模态框
@@ -617,7 +610,7 @@
         loadArticles('readCount');
     });
 
-    // 关闭二维码模态框
+    // 关闭维码模态框
     document.querySelector('.close-btn').addEventListener('click', function() {
         document.getElementById('qrModal').style.display = 'none';
     });
