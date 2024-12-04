@@ -313,7 +313,6 @@
                     <button class="filter-btn" id="scoreSort">按分数排序</button>
                 </div>
 
-                <!-- 修改表格结构 -->
                 <table class="article-table">
                     <thead>
                         <tr>
@@ -344,7 +343,6 @@
         </div>
     </div>
 
-    <!-- 添加分享模态框 -->
     <div class="share-modal" id="shareModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -464,6 +462,11 @@
         // 加载文章列表
         function loadArticles(sortBy) {
             const articleTable = document.querySelector('.article-table tbody');
+            if (!articleTable) {
+                console.error('文章表格未找到');
+                return; // 如果未找到，提前返回
+            }
+
             let articles = JSON.parse(localStorage.getItem('articles') || '[]');
             
             // 过滤掉超过24小时的文章
@@ -567,7 +570,7 @@
             window.open(weiboUrl, '_blank');
         };
 
-        // 分享到QQ
+        // 分享���QQ
         window.shareToQQ = function() {
             const shareModal = document.getElementById('shareModal');
             const url = shareModal.dataset.articleUrl;
@@ -604,8 +607,22 @@
                 return;
             }
 
+            let articles = JSON.parse(localStorage.getItem('articles') || '[]');
+            const articleToDelete = articles.find(article => article.id.toString() === id);
+            if (!articleToDelete) {
+                alert('文章未找到');
+                return;
+            }
+
+            const currentTime = Date.now();
+            const timeDiff = currentTime - articleToDelete.createdAt;
+
+            if (timeDiff < 24 * 60 * 60 * 1000) {
+                alert('文章在发布后24小时内无法删除。');
+                return;
+            }
+
             if (confirm('确定要删除这篇文章吗？')) {
-                let articles = JSON.parse(localStorage.getItem('articles') || '[]');
                 articles = articles.filter(article => article.id.toString() !== id);
                 localStorage.setItem('articles', JSON.stringify(articles));
                 loadArticles(currentSortType);
@@ -615,9 +632,6 @@
 
         // 初始化加载
         loadArticles('readCount');
-        
-        // 清空本地存储的文章数据（初始化）
-        localStorage.removeItem('articles');
     });
 
     // 关闭二维码模态框
@@ -637,20 +651,6 @@
         if (e.target === this) {
             this.style.display = 'none';
         }
-    });
-
-    // 添加清空内容的脚本
-    document.addEventListener('DOMContentLoaded', function() {
-        // 清空所有输入框的值
-        document.getElementById('articleTitle').value = '';
-        document.getElementById('articleUrl').value = '';
-        document.getElementById('articleDesc').value = '';
-        
-        // 清空本地存储的文章数据
-        localStorage.removeItem('articles');
-        
-        // 清空表格内容
-        document.querySelector('.article-table tbody').innerHTML = '';
     });
     </script>
     <script src="assets/js/read.js"></script>
