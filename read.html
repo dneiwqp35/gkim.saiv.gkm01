@@ -445,7 +445,6 @@
                 console.log('发布成功:', data);
                 loadArticles(currentSortType); // 刷新文章列表
                 publishForm.reset(); // 重置表单
-                showQRCode(data.url); // 使用最新的文章链接生成二维码
             })
             .catch(error => {
                 console.error('发布失败:', error);
@@ -472,7 +471,11 @@
                     articleTable.innerHTML = articles.map(article => `
                         <tr>
                             <td>${article.title}</td>
-                            <td>${article.platform}</td>
+                            <td>
+                                <span class="platform-tag ${article.platform}">
+                                    ${article.platform === 'toutiao' ? '头条' : '微信'}
+                                </span>
+                            </td>
                             <td>${new Date(article.publishTime).toLocaleString()}</td>
                             <td>${article.readCount}</td>
                             <td>${article.likeCount}</td>
