@@ -436,7 +436,8 @@
                 publishTime: new Date().toISOString(),
                 readCount: 0,
                 likeCount: 0,
-                author: currentUser
+                author: currentUser,
+                createdAt: Date.now()
             };
 
             // 保存文章
@@ -465,6 +466,10 @@
             const articleTable = document.querySelector('.article-table tbody');
             let articles = JSON.parse(localStorage.getItem('articles') || '[]');
             
+            // 过滤掉超过24小时的文章
+            const currentTime = Date.now();
+            articles = articles.filter(article => (currentTime - article.createdAt) <= 24 * 60 * 60 * 1000);
+
             // 排序
             articles.sort((a, b) => {
                 const valueA = parseInt(a[sortBy]) || 0;
