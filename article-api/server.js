@@ -5,20 +5,20 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ÖÐ¼ä¼þ
+// ä¸­é—´ä»¶
 app.use(cors());
 app.use(bodyParser.json());
 
-// ´æ´¢ÎÄÕÂµÄÊý×é
+// å­˜å‚¨æ–‡ç« çš„æ•°ç»„
 let articles = [];
 
-// ¸ùÂ·¾¶´¦Àí
+// æ ¹è·¯å¾„å¤„ç†
 app.get('/', (req, res) => {
-    res.set('Content-Type', 'text/html; charset=utf-8'); // ÉèÖÃ×Ö·û±àÂë
-    res.send('»¶Ó­Ê¹ÓÃÎÄÕÂ·¢²¼ API£¡Çë·ÃÎÊ /api/articles ½øÐÐ²Ù×÷¡£');
+    res.set('Content-Type', 'text/html; charset=utf-8'); // è®¾ç½®å­—ç¬¦ç¼–ç 
+    res.send('æ¬¢è¿Žä½¿ç”¨æ–‡ç« å‘å¸ƒ APIï¼è¯·è®¿é—® /api/articles è¿›è¡Œæ“ä½œã€‚');
 });
 
-// ·¢²¼ÎÄÕÂµÄ API
+// å‘å¸ƒæ–‡ç« çš„ API
 app.post('/api/articles', (req, res) => {
     const article = {
         id: Date.now(),
@@ -36,19 +36,19 @@ app.post('/api/articles', (req, res) => {
     res.status(201).json(article);
 });
 
-// »ñÈ¡ËùÓÐÎÄÕÂµÄ API
+// èŽ·å–æ‰€æœ‰æ–‡ç« çš„ API
 app.get('/api/articles', (req, res) => {
-    res.set('Content-Type', 'application/json; charset=utf-8'); // ÉèÖÃ×Ö·û±àÂë
+    res.set('Content-Type', 'application/json; charset=utf-8'); // è®¾ç½®å­—ç¬¦ç¼–ç 
     res.json(articles);
 });
 
-// ´íÎó´¦Àí
+// é”™è¯¯å¤„ç†
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('·þÎñÆ÷´íÎó');
+    res.status(500).send('æœåŠ¡å™¨é”™è¯¯');
 });
 
-// Æô¶¯·þÎñÆ÷
+// å¯åŠ¨æœåŠ¡å™¨
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

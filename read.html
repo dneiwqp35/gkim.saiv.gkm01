@@ -428,22 +428,26 @@
             };
 
             // 发送请求到后端 API 保存文章
-            fetch('https://yourwebsite.com/api/articles', {
+            fetch('http://localhost:3000/api/articles', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(article)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应不是 OK');
+                }
+                return response.json();
+            })
             .then(data => {
-                // 处理成功响应
-                alert('发布成功！');
+                console.log('发布成功:', data);
                 loadArticles(currentSortType); // 刷新文章列表
                 publishForm.reset(); // 重置表单
             })
             .catch(error => {
-                console.error('发布文章失败:', error);
+                console.error('发布失败:', error);
                 alert('发布失败，请重试');
             });
         });
