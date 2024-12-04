@@ -138,7 +138,7 @@
 <body>
     <header>
         <nav>
-            <!-- 导航栏保持不变 -->
+            <div id="loginMessage" style="color: red; display: none;">请登录以使用所有功能。</div>
         </nav>
     </header>
 
@@ -146,10 +146,10 @@
         <div class="admin-sidebar">
             <ul class="admin-menu">
                 <li><a href="#dashboard" class="active">控制面板</a></li>
-                <li><a href="#users">用户管理</a></li>
-                <li><a href="#articles">文章管理</a></li>
-                <li><a href="#points">积分管理</a></li>
-                <li><a href="#settings">系统设置</a></li>
+                <li><a href="#users" onclick="showUsers()">用户管理</a></li>
+                <li><a href="#articles" onclick="showArticles()">文章管理</a></li>
+                <li><a href="#points" onclick="showPoints()">积分管理</a></li>
+                <li><a href="#settings" onclick="showSettings()">系统设置</a></li>
             </ul>
         </div>
 
@@ -157,6 +157,8 @@
             <div class="admin-header">
                 <h2 class="admin-title">管理员控制面板</h2>
                 <span class="admin-badge">超级管理员</span>
+                <button class="action-btn" onclick="addUser()">添加用户</button>
+                <button class="action-btn" onclick="addArticle()">添加文章</button>
             </div>
 
             <div class="admin-stats">
@@ -174,42 +176,66 @@
                 </div>
             </div>
 
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>用户名</th>
-                        <th>注册时间</th>
-                        <th>积分</th>
-                        <th>状态</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody id="userList">
-                    <!-- 用户列表将通过JavaScript动态添加 -->
-                </tbody>
-            </table>
+            <div id="userManagement">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>注册时间</th>
+                            <th>积分</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userList">
+                        <!-- 用户列表将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="articleManagement" style="display: none;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>文章标题</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="articleList">
+                        <!-- 文章列表将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="pointsManagement" style="display: none;">
+                <h3>积分管理</h3>
+                <button class="action-btn" onclick="viewPoints()">查看积分</button>
+            </div>
+
+            <div id="settingsManagement" style="display: none;">
+                <h3>系统设置</h3>
+                <button class="action-btn" onclick="updateSettings()">更新设置</button>
+            </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 检查管理员权限
-            const isAdmin = localStorage.getItem('isAdmin') === 'true';
-            if (!isAdmin) {
-                window.location.href = 'login.html';
-                return;
-            }
-
             // 模拟数据
             const users = [
                 { username: 'user1', registerDate: '2024-03-20', points: 100, status: '正常' },
                 { username: 'user2', registerDate: '2024-03-19', points: 50, status: '正常' },
-                // ... 更多用户数据
+            ];
+
+            const articles = [
+                { title: '文章1', createDate: '2024-03-21' },
+                { title: '文章2', createDate: '2024-03-22' },
             ];
 
             // 更新统计数据
             document.getElementById('totalUsers').textContent = users.length;
-            document.getElementById('totalArticles').textContent = '156';
+            document.getElementById('totalArticles').textContent = articles.length;
             document.getElementById('todayActive').textContent = '23';
 
             // 渲染用户列表
@@ -221,12 +247,178 @@
                     <td>${user.points}</td>
                     <td>${user.status}</td>
                     <td>
-                        <button class="action-btn edit-btn">编辑</button>
-                        <button class="action-btn delete-btn">删除</button>
+                        <button class="action-btn edit-btn" onclick="editUser('${user.username}')">编辑</button>
+                        <button class="action-btn delete-btn" onclick="deleteUser('${user.username}')">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // 渲染文章列表
+            const articleList = document.getElementById('articleList');
+            articleList.innerHTML = articles.map(article => `
+                <tr>
+                    <td>${article.title}</td>
+                    <td>${article.createDate}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editArticle('${article.title}')">编辑</button>
+                        <button class="action-btn delete-btn" onclick="deleteArticle('${article.title}')">删除</button>
                     </td>
                 </tr>
             `).join('');
         });
+
+        function showUsers() {
+            document.getElementById('userManagement').style.display = 'block';
+            document.getElementById('articleManagement').style.display = 'none';
+            document.getElementById('pointsManagement').style.display = 'none';
+            document.getElementById('settingsManagement').style.display = 'none';
+        }
+
+        function showArticles() {
+            document.getElementById('userManagement').style.display = 'none';
+            document.getElementById('articleManagement').style.display = 'block';
+            document.getElementById('pointsManagement').style.display = 'none';
+            document.getElementById('settingsManagement').style.display = 'none';
+        }
+
+        function showPoints() {
+            document.getElementById('userManagement').style.display = 'none';
+            document.getElementById('articleManagement').style.display = 'none';
+            document.getElementById('pointsManagement').style.display = 'block';
+            document.getElementById('settingsManagement').style.display = 'none';
+        }
+
+        function showSettings() {
+            document.getElementById('userManagement').style.display = 'none';
+            document.getElementById('articleManagement').style.display = 'none';
+            document.getElementById('pointsManagement').style.display = 'none';
+            document.getElementById('settingsManagement').style.display = 'block';
+        }
+
+        function addUser() {
+            const username = prompt("请输入用户名:");
+            const registerDate = new Date().toISOString().split('T')[0];
+            const points = 0; // 默认积分
+            const status = '正常';
+
+            if (username) {
+                const userList = document.getElementById('userList');
+                const newRow = `
+                    <tr>
+                        <td>${username}</td>
+                        <td>${registerDate}</td>
+                        <td>${points}</td>
+                        <td>${status}</td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="editUser('${username}')">编辑</button>
+                            <button class="action-btn delete-btn" onclick="deleteUser('${username}')">删除</button>
+                        </td>
+                    </tr>
+                `;
+                userList.innerHTML += newRow;
+            }
+        }
+
+        function editUser(username) {
+            const newUsername = prompt("请输入新的用户名:", username);
+            if (newUsername) {
+                const rows = document.querySelectorAll('#userList tr');
+                rows.forEach(row => {
+                    const userCell = row.cells[0];
+                    if (userCell.textContent === username) {
+                        userCell.textContent = newUsername;
+                    }
+                });
+            }
+        }
+
+        function deleteUser(username) {
+            const rows = document.querySelectorAll('#userList tr');
+            rows.forEach(row => {
+                const userCell = row.cells[0];
+                if (userCell.textContent === username) {
+                    row.remove();
+                }
+            });
+        }
+
+        function addArticle() {
+            const title = prompt("请输入文章标题:");
+            const link = prompt("请输入文章链接:");
+            const createDate = new Date().toISOString().split('T')[0];
+
+            if (title && link) {
+                const articleList = document.getElementById('articleList');
+                const newRow = `
+                    <tr>
+                        <td>${title}</td>
+                        <td>${createDate}</td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="editArticle('${title}', '${link}')">编辑</button>
+                            <button class="action-btn delete-btn" onclick="deleteArticle('${title}')">删除</button>
+                        </td>
+                    </tr>
+                `;
+                articleList.innerHTML += newRow;
+            }
+        }
+
+        function editArticle(title, link) {
+            const newTitle = prompt("请输入新的文章标题:", title);
+            const newLink = prompt("请输入新的文章链接:", link);
+            if (newTitle) {
+                const rows = document.querySelectorAll('#articleList tr');
+                rows.forEach(row => {
+                    const titleCell = row.cells[0];
+                    if (titleCell.textContent === title) {
+                        titleCell.textContent = newTitle;
+                    }
+                });
+            }
+        }
+
+        function deleteArticle(title) {
+            const rows = document.querySelectorAll('#articleList tr');
+            rows.forEach(row => {
+                const titleCell = row.cells[0];
+                if (titleCell.textContent === title) {
+                    row.remove();
+                }
+            });
+        }
+
+        function viewPoints() {
+            const userList = [
+                { username: 'user1', points: 100 },
+                { username: 'user2', points: 50 },
+            ]; // 模拟用户数据
+
+            // 显示用户积分清单
+            let userPointsList = userList.map(user => `${user.username}: ${user.points}`).join('\n');
+            let userToUpdate = prompt("请输入要修改积分的用户名:\n" + userPointsList);
+            
+            if (userToUpdate) {
+                const newPoints = prompt("请输入新的积分值:");
+                if (newPoints !== null && !isNaN(newPoints)) {
+                    // 更新用户积分
+                    userList.forEach(user => {
+                        if (user.username === userToUpdate) {
+                            user.points = parseInt(newPoints, 10);
+                        }
+                    });
+                    alert("用户积分已更新:\n" + userList.map(user => `${user.username}: ${user.points}`).join('\n'));
+                } else {
+                    alert("请输入有效的积分值。");
+                }
+            }
+        }
+
+        function updateSettings() {
+            const announcement = prompt("请输入公告内容:");
+            if (announcement) {
+                alert("公告已发布: " + announcement);
+            }
+        }
     </script>
 </body>
 </html> 

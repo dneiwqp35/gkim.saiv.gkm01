@@ -123,6 +123,7 @@
                 <li><a href="pricing.html">价格</a></li>
                 <li><a href="notice.html">公告</a></li>
                 <li><a href="login.html" class="login-btn">登录</a></li>
+                <li><a href="#" class="logout-btn" style="display: none;">退出</a></li>
             </ul>
         </nav>
     </header>
@@ -171,6 +172,7 @@
             const compareBtn = document.querySelector('.compare-btn');
             const resultSection = document.getElementById('resultSection');
             const loginBtn = document.querySelector('.login-btn');
+            const logoutBtn = document.querySelector('.logout-btn');
 
             // 字数统计
             function updateWordCount(text, display) {
@@ -198,15 +200,23 @@
                 resultSection.style.display = 'none';
             });
 
+            // 检查用户登录状态
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                logoutBtn.style.display = 'block';
+            } else {
+                document.querySelector('.login-btn').style.display = 'block';
+            }
+
+            // 退出功能
+            logoutBtn.addEventListener('click', function() {
+                localStorage.removeItem('currentUser');
+                alert('您已成功退出登录');
+                window.location.reload();
+            });
+
             // 对比功能
             compareBtn.addEventListener('click', function() {
-                if (!originalText.value.trim() || !compareText.value.trim()) {
-                    alert('请输入需要对比的内容');
-                    return;
-                }
-
-                // 检查用户登录和积分
-                const currentUser = localStorage.getItem('currentUser');
                 if (!currentUser) {
                     alert('请先登录');
                     window.location.href = 'login.html';
@@ -216,6 +226,11 @@
                 let userPoints = parseInt(localStorage.getItem('userPoints') || '0');
                 if (userPoints < 10) {
                     alert('积分不足，请充值');
+                    return;
+                }
+
+                if (!originalText.value.trim() || !compareText.value.trim()) {
+                    alert('请输入需要对比的内容');
                     return;
                 }
 

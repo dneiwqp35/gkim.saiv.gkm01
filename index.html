@@ -230,7 +230,8 @@
                 <li><a href="smart-edit.html">智改</a></li>
                 <li><a href="pricing.html">价格</a></li>
                 <li><a href="notice.html">公告</a></li>
-                <li><a href="login.html" class="login-btn">登录</a></li>
+                <li id="user-status"></li>
+                <li><a href="#" id="logout-btn" class="login-btn">退出</a></li>
             </ul>
         </nav>
     </header>
@@ -375,6 +376,27 @@
                 };
             }
 
+            // 显示用户状态
+            const userStatus = document.getElementById('user-status');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            const currentUser = localStorage.getItem('currentUser');
+            const userPoints = localStorage.getItem('userPoints');
+
+            if (currentUser) {
+                userStatus.textContent = `欢迎, ${currentUser} (积分: ${userPoints})`;
+            } else {
+                userStatus.textContent = '未登录';
+            }
+
+            // 退出功能
+            logoutBtn.addEventListener('click', function() {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('userPoints');
+                alert('已成功退出登录');
+                window.location.reload(); // 刷新页面
+            });
+
             // 检测功能
             detectBtn.addEventListener('click', async function() {
                 const text = inputText.value.trim();
@@ -390,7 +412,6 @@
                 }
 
                 // 检查用户登录状态
-                const currentUser = localStorage.getItem('currentUser');
                 if (!currentUser) {
                     alert('请先登录');
                     window.location.href = 'login.html';
@@ -398,7 +419,6 @@
                 }
 
                 // 检查用户积分
-                let userPoints = localStorage.getItem('userPoints');
                 if (userPoints !== 'unlimited' && parseInt(userPoints) < 10) {
                     alert('积分不足，请充值');
                     return;

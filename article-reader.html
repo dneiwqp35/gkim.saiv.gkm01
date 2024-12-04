@@ -52,7 +52,11 @@
                 <li><a href="smart-edit.html">智改</a></li>
                 <li><a href="pricing.html">价格</a></li>
                 <li><a href="notice.html">公告</a></li>
-                <li><a href="login.html" class="login-btn">登录</a></li>
+                <li id="user-info" style="display: none;">
+                    <span id="username-display"></span>
+                    <button id="logout-btn">退出</button>
+                </li>
+                <li><a href="login.html" class="login-btn" id="login-link">登录</a></li>
             </ul>
         </nav>
     </header>
@@ -83,6 +87,48 @@
                 document.getElementById('articleContent').textContent = '文章不存在或已被删除';
             }
         });
+
+        // 显示用户信息
+        function displayUserInfo() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                document.getElementById('username-display').textContent = `欢迎, ${currentUser}`;
+                document.getElementById('user-info').style.display = 'inline';
+                document.getElementById('login-link').style.display = 'none';
+            }
+        }
+
+        // 退出功能
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('userPoints');
+            localStorage.removeItem('userRole');
+            alert('您已成功退出');
+            window.location.href = 'login.html'; // 重定向到登录页面
+        });
+
+        // 页面加载时显示用户信息
+        document.addEventListener('DOMContentLoaded', displayUserInfo);
+
+        // 检查用户登录和积分
+        const currentUser = localStorage.getItem('currentUser');
+        if (!currentUser) {
+            alert('请先登录');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        let userPoints = parseInt(localStorage.getItem('userPoints') || '0');
+        if (userPoints < 10) {
+            alert('积分不足，请充值');
+            return;
+        }
+
+        // 执行功能逻辑...
+
+        // 扣除积分
+        userPoints -= 10;
+        localStorage.setItem('userPoints', userPoints.toString());
     </script>
 </body>
 </html> 

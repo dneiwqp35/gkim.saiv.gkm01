@@ -113,6 +113,10 @@
                 <li><a href="notice.html">公告</a></li>
                 <li><a href="login.html" class="login-btn">登录</a></li>
             </ul>
+            <div class="user-info" id="userInfo" style="display: none;">
+                <span id="username"></span>
+                <button id="logoutBtn">退出</button>
+            </div>
         </nav>
     </header>
 
@@ -153,6 +157,9 @@
             const progressBar = document.getElementById('progressBar');
             const clearBtn = document.getElementById('clearBtn');
             const reduceBtn = document.getElementById('reduceBtn');
+            const userInfo = document.getElementById('userInfo');
+            const usernameDisplay = document.getElementById('username');
+            const logoutBtn = document.getElementById('logoutBtn');
 
             // 字数统计
             function updateWordCount(text, display) {
@@ -176,6 +183,25 @@
                 originalCount.textContent = '0';
                 resultCount.textContent = '0';
                 progressBar.style.width = '0';
+            });
+
+            // 检查用户登录状态
+            function checkUserLogin() {
+                const currentUser = localStorage.getItem('currentUser');
+                if (currentUser) {
+                    userInfo.style.display = 'block';
+                    usernameDisplay.textContent = currentUser;
+                } else {
+                    userInfo.style.display = 'none';
+                }
+            }
+
+            // 退出功能
+            logoutBtn.addEventListener('click', function() {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('userPoints');
+                checkUserLogin();
+                alert('您已成功退出登录');
             });
 
             // 降重功能
@@ -237,6 +263,9 @@
 
                 return result;
             }
+
+            // 初始化检查用户登录状态
+            checkUserLogin();
         });
     </script>
 </body>

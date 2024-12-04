@@ -151,6 +151,7 @@
                 <li><a href="smart-edit.html">智改</a></li>
                 <li><a href="pricing.html">价格</a></li>
                 <li><a href="notice.html">公告</a></li>
+                <li id="logoutBtn" style="display: none;"><a href="#" id="logout">退出</a></li>
             </ul>
         </nav>
     </header>
@@ -195,10 +196,33 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // 检查用户权限
-            if (!localStorage.getItem('canPublish')) {
+            const currentUser = localStorage.getItem('currentUser');
+            const userPoints = parseInt(localStorage.getItem('userPoints') || '0', 10); // 获取用户积分
+
+            if (!currentUser) {
                 alert('您没有发布权限');
                 window.location.href = 'login.html';
                 return;
+            }
+
+            // 显示退出按钮
+            document.getElementById('logoutBtn').style.display = 'block';
+
+            // 退出功能
+            document.getElementById('logout').addEventListener('click', function() {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('userPoints');
+                alert('您已成功退出');
+                window.location.href = 'login.html';
+            });
+
+            // 功能使用时检查积分
+            function checkUserPoints(requiredPoints) {
+                if (userPoints < requiredPoints) {
+                    alert('您的积分不足，无法使用此功能');
+                    return false;
+                }
+                return true;
             }
 
             // 初始化编辑器
@@ -269,6 +293,13 @@
             const publishForm = document.getElementById('publishForm');
             publishForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
+
+                if (!checkUserPoints(10)) { // 假设发布文章需要10积分
+                    return;
+                }
+
+                // 扣除积分
+                localStorage.setItem('userPoints', userPoints - 10);
 
                 const articleData = {
                     title: document.getElementById('title').value,

@@ -187,6 +187,7 @@
             <div class="logo">
                 <span class="year-2">2</span><span class="year-0">0</span><span class="year-2-2">2</span><span class="year-4">4</span>
                 <span class="brand">古韵江湖</span><span class="ai">AI</span>
+                <span id="usernameDisplay" style="display: none;"></span>
             </div>
             <ul>
                 <li><a href="read.html">阅读</a></li>
@@ -198,7 +199,8 @@
                 <li><a href="smart-edit.html">智改</a></li>
                 <li><a href="pricing.html">价格</a></li>
                 <li><a href="notice.html">公告</a></li>
-                <li><a href="login.html" class="login-btn">登录</a></li>
+                <li><a href="login.html" class="login-btn" id="loginBtn">登录</a></li>
+                <li><a href="#" class="logout-btn" id="logoutBtn" style="display: none;">退出</a></li>
             </ul>
         </nav>
     </header>
@@ -259,6 +261,33 @@
             const resultSection = document.getElementById('resultSection');
             const aiScore = document.getElementById('aiScore');
             const suggestionList = document.getElementById('suggestionList');
+            const loginBtn = document.getElementById('loginBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const usernameDisplay = document.getElementById('usernameDisplay');
+
+            // 检查用户登录状态
+            function checkUserStatus() {
+                const currentUser = localStorage.getItem('currentUser');
+                if (currentUser) {
+                    // 用户已登录
+                    loginBtn.style.display = 'none';
+                    logoutBtn.style.display = 'block';
+                    usernameDisplay.textContent = `欢迎, ${currentUser}`;
+                    usernameDisplay.style.display = 'inline';
+                    // 绑定退出功能
+                    logoutBtn.addEventListener('click', function() {
+                        localStorage.removeItem('currentUser');
+                        localStorage.removeItem('userPoints');
+                        checkUserStatus();
+                        alert('已成功退出登录');
+                    });
+                } else {
+                    // 用户未登录
+                    loginBtn.style.display = 'block';
+                    logoutBtn.style.display = 'none';
+                    usernameDisplay.style.display = 'none';
+                }
+            }
 
             // 字数统计
             inputText.addEventListener('input', function() {
@@ -275,9 +304,10 @@
 
             // 降重功能
             reduceBtn.addEventListener('click', function() {
-                if (!inputText.value.trim()) {
-                    alert('请输入需要降重的内容');
-                    return;
+                // 检查输入内容长度
+                if (!inputText.value.trim() || inputText.value.trim().length < 10) {
+                    alert('输入内容过短,请输入至少10个字符');
+                    return; // 阻止提交
                 }
 
                 // 检查用户登录和积分
@@ -326,6 +356,8 @@
 
                 resultSection.style.display = 'block';
             });
+
+            checkUserStatus();
         });
     </script>
 </body>

@@ -395,14 +395,38 @@
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             }
 
-            // 下载报告
-            document.getElementById('downloadBtn').addEventListener('click', function() {
-                alert('报告下载功能开发中...');
+            // 检查用户登录状态和积分
+            const userLoggedIn = false; // 假设用户未登录
+            const userPoints = 0; // 假设用户积分为0
+
+            // 显示登录提示
+            if (!userLoggedIn) {
+                alert('请登录以使用此功能。');
+            }
+
+            // 权限检查函数
+            function checkPermission(pointsRequired) {
+                if (userPoints < pointsRequired) {
+                    alert('您的积分不足，无法使用此功能。');
+                    return false;
+                }
+                return true;
+            }
+
+            // 一键降重按钮点击事件
+            document.getElementById('reduceBtn').addEventListener('click', function() {
+                if (checkPermission(10)) { // 假设使用此功能需要10积分
+                    userPoints -= 10; // 扣除积分
+                    window.location.href = 'reduce2.html';
+                }
             });
 
-            // 一键降重
-            document.getElementById('reduceBtn').addEventListener('click', function() {
-                window.location.href = 'reduce2.html';
+            // 下载报告按钮点击事件
+            document.getElementById('downloadBtn').addEventListener('click', function() {
+                if (checkPermission(5)) { // 假设下载报告需要5积分
+                    alert('报告下载功能开发中...');
+                    userPoints -= 5; // 扣除积分
+                }
             });
         });
     </script>

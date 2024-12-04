@@ -151,6 +151,15 @@
             color: #fff;
             border-color: #1890ff;
         }
+
+        .user-status {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+        .user-status span {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -173,6 +182,11 @@
                 <li><a href="notice.html" class="active">公告</a></li>
                 <li><a href="login.html" class="login-btn">登录</a></li>
             </ul>
+            <div class="user-status" id="userStatus">
+                <!-- 用户状态信息 -->
+                <span id="userMessage">欢迎，游客</span>
+                <button id="logoutButton" style="display: none;">退出</button>
+            </div>
         </nav>
     </header>
 
@@ -224,6 +238,46 @@
                 }
             ];
 
+            // 模拟用户数据
+            let user = {
+                isLoggedIn: false,
+                points: 0 // 用户积分
+            };
+
+            // 更新用户状态
+            function updateUserStatus() {
+                const userMessage = document.getElementById('userMessage');
+                const logoutButton = document.getElementById('logoutButton');
+                if (user.isLoggedIn) {
+                    userMessage.textContent = `欢迎，用户（积分：${user.points}）`;
+                    logoutButton.style.display = 'block';
+                } else {
+                    userMessage.textContent = '欢迎，游客';
+                    logoutButton.style.display = 'none';
+                }
+            }
+
+            // 退出功能
+            document.getElementById('logoutButton').addEventListener('click', function() {
+                user.isLoggedIn = false;
+                user.points = 0; // 退出时重置积分
+                updateUserStatus();
+            });
+
+            // 示例：使用功能时扣除积分
+            function useFeature() {
+                if (user.isLoggedIn) {
+                    if (user.points >= 10) { // 假设使用功能需要10积分
+                        user.points -= 10;
+                        alert('功能已使用，剩余积分：' + user.points);
+                    } else {
+                        alert('积分不足，无法使用该功能。');
+                    }
+                } else {
+                    alert('请先登录。');
+                }
+            }
+
             // 渲染公告列表
             function renderNotices(notices) {
                 const noticeList = document.getElementById('noticeList');
@@ -258,6 +312,7 @@
             };
 
             // 初始化
+            updateUserStatus();
             renderNotices(notices);
         });
     </script>

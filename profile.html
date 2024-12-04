@@ -180,6 +180,13 @@
         .save-btn:hover {
             background: #40a9ff;
         }
+
+        .login-alert {
+            color: #ff4d4f;
+            font-size: 14px;
+            text-align: center;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
@@ -278,6 +285,10 @@
         </div>
     </div>
 
+    <div class="login-alert" id="loginAlert" style="display: none;">
+        您的积分不足以使用某些功能，请提升积分后再试。
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // 获取用户信息
@@ -367,6 +378,26 @@
                 alert('密码修改成功！');
                 this.reset();
             });
+
+            // 检查用户积分并显示登录提示
+            const requiredPoints = 100; // 假设需要100积分才能使用某些功能
+            if (currentPoints < requiredPoints) {
+                document.getElementById('loginAlert').style.display = 'block';
+            }
+
+            // 修改功能使用权限
+            function useFeature(pointsCost) {
+                if (currentPoints >= pointsCost) {
+                    // 扣除积分
+                    localStorage.setItem('userPoints', currentPoints - pointsCost);
+                    alert('功能已使用，积分已扣除。');
+                } else {
+                    alert('积分不足，无法使用该功能。');
+                }
+            }
+
+            // 示例：使用某个功能时调用 useFeature 函数
+            // useFeature(10); // 假设使用该功能需要10积分
         });
     </script>
 </body>

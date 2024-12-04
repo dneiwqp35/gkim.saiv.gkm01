@@ -155,6 +155,15 @@
             color: #666;
             line-height: 1.6;
         }
+
+        .user-status {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+        .user-status span {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -177,6 +186,10 @@
                 <li><a href="notice.html">公告</a></li>
                 <li><a href="login.html" class="login-btn">登录</a></li>
             </ul>
+            <div class="user-status">
+                <span id="user-info"></span>
+                <button id="logout-btn" style="display: none;">退出</button>
+            </div>
         </nav>
     </header>
 
@@ -261,9 +274,25 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 检查用户登录状态
             const currentUser = localStorage.getItem('currentUser');
             const currentPlan = localStorage.getItem('userPlan');
+            const userPoints = parseInt(localStorage.getItem('userPoints')) || 0;
+
+            // 显示用户信息和退出按钮
+            if (currentUser) {
+                document.getElementById('user-info').textContent = `欢迎, ${currentUser} (积分: ${userPoints})`;
+                document.getElementById('logout-btn').style.display = 'block';
+            } else {
+                document.getElementById('user-info').textContent = '请登录';
+            }
+
+            // 退出功能
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('userPlan');
+                localStorage.removeItem('userPoints');
+                window.location.reload();
+            });
 
             // 为按钮添加点击事件
             document.querySelectorAll('.plan-button').forEach(button => {
@@ -274,7 +303,15 @@
                         window.location.href = 'login.html';
                         return;
                     }
-                    // 这里添加支付逻辑
+
+                    // 检查积分是否足够
+                    if (userPoints < 10) { // 假设使用功能需要10积分
+                        alert('您的积分不足，无法使用此功能。');
+                        return;
+                    }
+
+                    // 扣除积分
+                    localStorage.setItem('userPoints', userPoints - 10);
                     alert('支付功能开发中...');
                 });
             });

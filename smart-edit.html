@@ -304,6 +304,8 @@
             <div class="quota-display" id="quotaDisplay">
                 剩余次数：--
             </div>
+            <div id="loginPrompt" style="display: none; color: red;">请登录以使用此功能。</div>
+            <button id="logoutBtn" style="display: none;">退出登录</button>
         </div>
 
         <div class="editor-container">
@@ -432,6 +434,16 @@
                 }
             }
 
+            let userPoints = 0; // 假设用户积分从某处获取
+
+            function checkUserPermissions(action) {
+                if (userPoints < requiredPoints[action]) {
+                    showMessage('您的积分不足以使用此功能。', 'info');
+                    return false;
+                }
+                return true;
+            }
+
             // 为每个工具按钮添加点击事件
             toolButtons.forEach(button => {
                 button.addEventListener('click', async function(e) {
@@ -446,6 +458,17 @@
                         return;
                     }
                     
+                    // 检查用户是否登录
+                    if (!isLoggedIn) {
+                        document.getElementById('loginPrompt').style.display = 'block';
+                        return;
+                    }
+
+                    // 检查用户积分
+                    if (!checkUserPermissions(action)) {
+                        return;
+                    }
+
                     // 显示加载状态
                     this.disabled = true;
                     const originalText = this.innerHTML;
@@ -461,6 +484,7 @@
                                 mainEditor.value = result.processedText;
                                 updateStats();
                                 showMessage('处理完成', 'success');
+                                userPoints -= pointsCost[action]; // 扣除积分
                             }
                         } else {
                             throw new Error(result.message);
@@ -474,6 +498,14 @@
                         this.innerHTML = originalText;
                     }
                 });
+            });
+
+            // 退出登录功能
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                isLoggedIn = false; // 更新登录状态
+                userPoints = 0; // 重置积分
+                this.style.display = 'none'; // 隐藏退出按钮
+                document.getElementById('loginPrompt').style.display = 'none'; // 隐藏登录提示
             });
 
             // 初始化
