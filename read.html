@@ -480,7 +480,7 @@
                             <td>${article.readCount}</td>
                             <td>${article.likeCount}</td>
                             <td>
-                                <button onclick="showQRCode('${article.url}')">查看</button>
+                                <button onclick="showQRCode('${article.id}')">查看</button>
                             </td>
                         </tr>
                     `).join('');
@@ -506,12 +506,12 @@
         });
 
         // 显示二维码
-        window.showQRCode = function(url) {
+        window.showQRCode = function(articleId) {
             const modal = document.getElementById('qrModal');
             const qrcodeImg = document.getElementById('qrcode');
-            qrcodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+            qrcodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`http://localhost:3000/proxy/article/${articleId}`)}`;
             modal.style.display = 'flex';
-            console.log('生成的文章链接:', url);
+            console.log('生成的文章链接:', articleId);
         };
 
         // 显示分享模态框
